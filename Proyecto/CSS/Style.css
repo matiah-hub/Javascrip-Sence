@@ -1,0 +1,33 @@
+
+Body {
+    background-color:lightblue;
+    text-size-adjust: calc(auto);
+    background-size: auto;
+    padding: 50px; 
+
+}
+h1 {
+    color:red;  
+
+}
+
+img
+ {
+    width: 400px;
+    height: 300px;
+    margin: 0 auto;
+     display: block; 
+
+}
+.logofooter{
+       width: 30px; 
+       height: 30px;  
+       display:inline;
+}
+
+footer{
+      padding: 45px;
+      text-align: center;
+
+
+}
