@@ -1,16 +1,21 @@
 
+
 Body {
     background-color:lightblue;
-    text-size-adjust: calc(auto);
-    background-size: auto;
     padding: 50px; 
-
+    font-size: 16px; 
 }
 h1 {
     color:red;  
 
 }
 
+
+header{ 
+    background-color: cyan;
+   
+
+}
 img
  {
     width: 400px;
@@ -19,7 +24,7 @@ img
      display: block; 
 
 }
-.logofooter{
+#logofooter img{
        width: 30px; 
        height: 30px;  
        display:inline;
@@ -28,6 +33,40 @@ img
 footer{
       padding: 45px;
       text-align: center;
-
-
 }
+
+   
+@media (max-width: 718px)  {
+    header h1{
+        font-size: 30px; 
+        background-color: blue;
+    }
+
+    body{ 
+        font-size: 16px;
+        color: cyan
+    }
+    footer{
+        font-size: 1rem;
+        background-color:aliceblue;
+        padding: 10 px;
+
+    }
+    #logofooter{
+        padding: 10px;
+    }
+@media (max-width: 600px){
+    header{ 
+        background-color: purple;
+
+    }
+    header h1{
+        font-size: 24px;
+
+    }
+    #logofooter img{ 
+        width: 30px;
+
+    }
+}
+}    
