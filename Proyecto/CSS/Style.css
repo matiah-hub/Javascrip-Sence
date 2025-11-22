@@ -3,7 +3,7 @@
 Body {
     background-color:lightblue;
     padding: 50px; 
-    font-size: 16px; 
+    font-size: 15px; 
 }
 h1 {
     color:red;  
@@ -38,13 +38,16 @@ footer{
    
 @media (max-width: 718px)  {
     header h1{
-        font-size: 30px; 
-        background-color: blue;
+        font-size: 10px; 
+        background-color: white
+    
+    }
+    #titulo3 h3 {height: 350px;
     }
 
     body{ 
         font-size: 16px;
-        color: cyan
+        color: purple
     }
     footer{
         font-size: 1rem;
@@ -57,7 +60,8 @@ footer{
     }
 @media (max-width: 600px){
     header{ 
-        background-color: purple;
+        background-color: black;
+        }
 
     }
     header h1{
@@ -69,4 +73,3 @@ footer{
 
     }
 }
-}    
