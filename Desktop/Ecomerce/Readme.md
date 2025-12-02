@@ -7,7 +7,7 @@ Interfaz web básica de una tienda e-commerce centrada en productos Digimon. Est
 
 ## Estructura del Proyecto
 
-La aplicación utiliza la siguiente estructura de archivos:ecomerce/ ├─ index.html # Página de listado principal (Home) ├─ vmon.html # Detalle del producto V-mon ├─ agumon.html # Detalle del producto Agumon ├─ productos.html # (Opcional) Listado completo del catálogo ├─ assets/ │ ├─ css/styles.css # Tu archivo de estilos principal │ └─ img/... # Imágenes de productos y capturas └─ README.md
+La aplicación utiliza la siguiente estructura de archivos:ecomerce/ ├─ ecomerce.html # Página de listado principal (Home) ├─ vmon.html # Detalle del producto V-mon ├─ agumon.html # Detalle del producto Agumon ├─ productos.html # (Opcional) Listado completo del catálogo ├─ assets/ │ ├─ css/styles.css # Tu archivo de estilos principal │ └─ img/... # Imágenes de productos y capturas └─ README.md
 
 
 
