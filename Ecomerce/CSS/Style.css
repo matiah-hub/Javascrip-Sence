@@ -1,0 +1,71 @@
+body {
+    background-color:lightblue;
+    padding: 50px; 
+    font-size: 15px; 
+      }
+h1 {
+    color:red;  
+}
+header{ 
+    background-color: cyan;
+}
+img
+ {
+    width: 400px;
+    height: 300px;
+    margin: 0 auto;
+    display: block; 
+
+}
+#logofooter img{
+       width: 30px; 
+       height: 30px;  
+       display:inline;
+}
+footer{
+      padding: 45px;
+      text-align: center;
+}
+@media (max-width: 718px) {
+    
+    header h1 {
+        font-size: 25px; 
+        background-color: white;
+    }
+    
+    #titulo3 h3 {
+        height: 350px;
+    }
+
+    body { 
+        font-size: 16px;
+        color: purple; /* PRUEBA: Si ves morado, funciona */
+    }
+    
+    footer {
+        font-size: 1rem;
+        background-color: aliceblue;
+        padding: 10px;
+    }
+    
+    #logofooter {
+        padding: 10px;
+    }
+    
+    #logofooter img { 
+        width: 30px;
+    }
+} 
+
+/* ======================================= */
+/* MEDIA QUERY 2: TAMAÑO MAX 600px */
+/* Está separada correctamente para que funcione. */
+/* ======================================= */
+@media (max-width: 600px) {
+    header { 
+        background-color: black; /* PRUEBA: Si ves negro, funciona */
+    }
+    header h1 {
+        font-size: 24px;
+    }
+}
