@@ -1,0 +1,92 @@
+/* Paleta de colores Digimon */
+:root {
+    --neon-green: #00ff41;
+    --dark-bg: #0a0a0a;
+    --card-bg: #121212;
+    --neon-blue: #00e5ff;
+}
+
+body {
+    background-color: var(--dark-bg);
+    color: #ffffff;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Navbar Estilo Matrix */
+.navbar {
+    background-color: #000000 !important;
+    border-bottom: 2px solid var(--neon-green) !important;
+    box-shadow: 0 0 15px rgba(0, 255, 65, 0.3);
+}
+
+.navbar-brand {
+    text-shadow: 0 0 10px var(--neon-green);
+    letter-spacing: 2px;
+}
+
+/* Tarjetas de Productos (Los Cuadros) */
+.card {
+    background-color: var(--card-bg) !important;
+    border: 1px solid var(--neon-green) !important;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 0 20px rgba(0, 255, 65, 0.5);
+    border-color: var(--neon-blue) !important;
+}
+
+.card-title {
+    color: var(--neon-green) !important;
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+/* Seccion del Carrito */
+#carrito-seccion {
+    background-color: #000000;
+    border: 2px solid var(--neon-green);
+    box-shadow: 0 0 20px rgba(0, 255, 65, 0.2);
+}
+
+.table {
+    --bs-table-bg: transparent;
+    --bs-table-color: #ffffff;
+    border-color: #333;
+}
+
+/* Botones Neon */
+.btn-success {
+    background-color: transparent !important;
+    border: 1px solid var(--neon-green) !important;
+    color: var(--neon-green) !important;
+}
+
+.btn-success:hover {
+    background-color: var(--neon-green) !important;
+    color: #000 !important;
+    box-shadow: 0 0 15px var(--neon-green);
+}
+
+.btn-outline-info {
+    border-color: var(--neon-blue) !important;
+    color: var(--neon-blue) !important;
+}
+
+.btn-outline-info:hover {
+    background-color: var(--neon-blue) !important;
+    color: #000 !important;
+}
+
+/* Animación para la imagen de promoción */
+#promocion {
+    filter: drop-shadow(0 0 10px rgba(0, 229, 255, 0.5));
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+    100% { transform: translateY(0px); }
+}
