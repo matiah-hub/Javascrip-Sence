@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Catálogo Sony Chile</title>
+    <link rel="stylesheet" href="/sony/css/CSS,css">
+    <style>
+        body { font-family: 'Helvetica', sans-serif; background-color: #111; color: white; padding: 20px; }
+        .contenedor-sony { max-width: 800px; margin: auto; border: 1px solid #333; padding: 20px; background: #000; }
+        .menu-categorias { display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; }
+        button { background: #fff; color: #000; border: none; padding: 10px 15px; cursor: pointer; font-weight: bold; }
+        button:hover { background: #ccc; }
+        #lista-productos { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .producto-card { border: 1px solid #444; padding: 15px; background: #1a1a1a; }
+        .producto-card h3 { margin: 0; color: #0071e3; }
+        .precio { font-size: 1.2em; color: #00ff41; margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+    <div class="contenedor-sony">
+        <h1 style="text-align: center;">SONY CHILE - Catálogo Oficial</h1>
+        
+        <div class="menu-categorias">
+            <button onclick="mostrarCategoria('TV')">Televisores</button>
+            <button onclick="mostrarCategoria('Audio')">Audio</button>
+            <button onclick="mostrarCategoria('Camaras')">Cámaras</button>
+        </div>
+
+        <div id="lista-productos">
+            </div>
+    </div>
+
+    <script src="./js/js.js"></script>
+</body>
+</html>
