@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Actividad Rick and Morty - API</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f4; }
+        .controles { margin-bottom: 20px; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        button { padding: 10px 15px; margin-right: 10px; cursor: pointer; background-color: #007bff; color: white; border: none; border-radius: 4px; }
+        button:hover { background-color: #0056b3; }
+        
+        #lista-personajes, #agrupacion-especie, #ficha-individual { 
+            background: white; 
+            margin-top: 20px; 
+            padding: 15px; 
+            border-radius: 8px; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .personaje-item { display: flex; align-items: center; margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        .personaje-item img { border-radius: 4px; margin-right: 15px; }
+    </style>
+</head>
+<body>
+
+    <div class="controles">
+        <h2>Panel de Control API</h2>
+        <button onclick="obtenerPersonajes()">1. Obtener Personajes</button>
+        
+        <button onclick="agruparPorEspecie()">2. Agrupar por Especie</button>
+        
+        <button onclick="mostrarFichaDinamica()">3. Personaje Aleatorio</button>
+    </div>
+
+    <div id="lista-personajes">
+        <p style="color: gray;">La lista de personajes aparecerá aquí...</p>
+    </div>
+
+    <div id="agrupacion-especie"></div>
+
+    <div id="ficha-individual"></div>
+
+    <script src="./js/scrip.js"></script>
+    
+</body>
+</html>
