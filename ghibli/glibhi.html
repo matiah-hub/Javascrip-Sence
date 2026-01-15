@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Studio Ghibli Library</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #e9ecef; padding: 20px; }
+        .container { max-width: 800px; margin: auto; }
+        .header { background: #2c3e50; color: white; padding: 20px; border-radius: 8px; text-align: center; margin-bottom: 20px; }
+        
+        .botones { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 20px; }
+        button { padding: 12px; cursor: pointer; border: none; border-radius: 5px; background: #3498db; color: white; font-weight: bold; }
+        button:hover { background: #2980b9; }
+
+        #salida-visual { display: flex; flex-direction: column; gap: 15px; }
+        .film-card { background: white; display: flex; align-items: center; padding: 15px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .film-card img { width: 120px; height: 180px; object-fit: cover; border-radius: 5px; margin-right: 20px; }
+        .info h4 { margin: 0 0 10px 0; color: #2c3e50; font-size: 1.2rem; }
+        .info p { margin: 5px 0; font-size: 0.95rem; color: #555; }
+        .desc { font-style: italic; font-size: 0.85rem !important; margin-top: 10px !important; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <h1>Studio Ghibli Film Library</h1>
+            <p>Usa los botones para explorar la colección (Ver consola para tablas)</p>
+        </div>
+
+        <div class="botones">
+            <button onclick="api.listarTitulosYDirectores()">Títulos y Directores</button>
+            <button onclick="api.listarTitulosYAnio()">Títulos y Año</button>
+            <button onclick="api.filtrarPorAnio()">Filtrar por Año</button>
+            <button onclick="api.listarTitulosYDescripcion()">Títulos y Descripción</button>
+            <button onclick="api.listarIds()">Listar IDs</button>
+        </div>
+
+        <div id="salida-visual">
+            </div>
+    </div>
+
+    <script src="./js/js.js"></script>
+</body>
+</html>
