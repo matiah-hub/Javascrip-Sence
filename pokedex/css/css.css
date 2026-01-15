@@ -1,0 +1,23 @@
+.card {
+    border: none;
+    transition: transform 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+.card-img-top {
+    background-color: #f8f9fa;
+    border-top-left-radius: calc(0.375rem - 1px);
+    border-top-right-radius: calc(0.375rem - 1px);
+}
+
+.modal-content {
+    border-radius: 15px;
+    border: none;
+}
+
+.badge {
+    letter-spacing: 0.5px;
+}
