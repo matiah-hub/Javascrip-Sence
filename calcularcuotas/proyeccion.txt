@@ -1,0 +1,3 @@
+SELECT (SUM(le_debo) - SUM(me_debe)) AS deuda_reducida,
+       (SUM(le_debo) - SUM(me_debe))::NUMERIC / SUM(cuotas_pagar) AS valor_cuota_357
+FROM finanzas_personales WHERE cuotas_pagar > 0;

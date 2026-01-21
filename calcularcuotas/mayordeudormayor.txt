@@ -1,0 +1,2 @@
+SELECT nombre, le_debo FROM finanzas_personales WHERE le_debo > 0 ORDER BY le_debo DESC LIMIT 1;
+SELECT nombre, me_debe FROM finanzas_personales WHERE me_debe > 0 ORDER BY me_debe DESC LIMIT 1;

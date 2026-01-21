@@ -1,0 +1,1 @@
+SELECT SUM(le_debo / cuotas_pagar) AS cuota_con_pareja FROM finanzas_personales WHERE cuotas_pagar > 0;

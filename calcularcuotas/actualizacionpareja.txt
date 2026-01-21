@@ -1,0 +1,2 @@
+INSERT INTO finanzas_personales (nombre, me_debe, cuotas_cobrar, le_debo, cuotas_pagar) 
+VALUES ('pareja', 0, 0, 50000, 1);

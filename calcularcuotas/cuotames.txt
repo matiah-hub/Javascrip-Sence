@@ -1,0 +1,3 @@
+SELECT SUM(le_debo / cuotas_pagar) AS cuota_mes_final
+FROM finanzas_personales
+WHERE cuotas_pagar > 0;
