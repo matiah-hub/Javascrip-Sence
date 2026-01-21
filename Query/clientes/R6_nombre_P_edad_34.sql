@@ -1,0 +1,1 @@
+SELECT * FROM clientes WHERE nombre LIKE 'P%' AND edad > 34;
