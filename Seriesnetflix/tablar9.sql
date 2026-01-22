@@ -1,0 +1,1 @@
+SELECT * FROM serie_netflix WHERE nombre LIKE 'B%' OR nombre LIKE '%e';

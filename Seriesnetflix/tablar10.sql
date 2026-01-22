@@ -1,0 +1,1 @@
+SELECT * FROM serie_netflix WHERE (anio_estreno + temporadas) > 2010;
