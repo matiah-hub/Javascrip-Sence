@@ -1,0 +1,8 @@
+Dispositivo Digital,15000,
+Emblema del Valor,50000,
+Digispirit, 50000,
+Digi-egg,50000, 
+Digihuevo de Oro,99000, 
+Cartas de Poder,2500,
+
+digispirit,50000
