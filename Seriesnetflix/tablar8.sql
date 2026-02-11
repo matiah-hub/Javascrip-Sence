@@ -1,0 +1,1 @@
+SELECT * FROM serie_netflix WHERE anio_estreno BETWEEN 2005 AND 2020;

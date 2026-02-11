@@ -1,0 +1,1 @@
+SELECT * FROM clientes WHERE rut LIKE '1%' AND nombre NOT LIKE 'M%' AND edad < 40;

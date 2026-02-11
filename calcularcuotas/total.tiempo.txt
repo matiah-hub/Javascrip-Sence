@@ -1,0 +1,4 @@
+SELECT SUM(le_debo) AS total_deuda, 
+       AVG(le_debo) AS promedio_deuda, 
+       SUM(cuotas_pagar) AS meses_totales 
+FROM finanzas_personales WHERE le_debo > 0;

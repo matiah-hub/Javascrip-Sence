@@ -1,0 +1,1 @@
+DELETE FROM serie_netflix WHERE anio_estreno > 2010;

@@ -1,0 +1,1 @@
+SELECT * FROM clientes WHERE rut LIKE '13%';
