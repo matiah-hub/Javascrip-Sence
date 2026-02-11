@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestión de Productos</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #0b0e14; color: #00d4ff; text-align: center; padding: 20px; }
+        .container { background: #1a202c; border: 3px solid #00d4ff; border-radius: 15px; display: inline-block; padding: 30px; box-shadow: 0 0 20px #00d4ff; }
+        .producto-card { border-bottom: 1px solid #2d3748; padding: 15px; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+        img.digi-thumb { width: 50px; height: 50px; border-radius: 50%; border: 1px solid #00d4ff; }
+        input, button { background: #2d3748; color: white; border: 1px solid #00d4ff; padding: 10px; margin: 5px; border-radius: 5px; cursor: pointer; }
+        button:hover { background: #00d4ff; color: #1a202c; font-weight: bold; }
+        h1 { text-transform: uppercase; letter-spacing: 3px; }
+    </style>
+</head>
+<body>
+    <h1>🛒 Digi-Market</h1>
+    <div class="container">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Digimon_Logo.svg/1200px-Digimon_Logo.svg.png" width="200" alt="Logo Digimon">
+        
+        <div style="margin: 20px 0;">
+            <button onclick="listarProductos()">LISTA DE ARTICULOS</button>
+            <button onclick="ordenar('nombre')">ORDENAR POR NOMBRE</button>
+            <button onclick="ordenar('precio')">ORDENAR POR PRECIO</button>
+        </div>
+
+        <div id="lista-articulos"></div>
+
+        <hr style="border: 0.5px solid #2d3748; margin: 30px 0;">
+
+        <h3>➕ Agregar al Inventario</h3>
+        <input type="text" id="nombreInput" placeholder="Nombre del ítem">
+        <input type="number" id="precioInput" placeholder="Precio en Bits">
+        <button onclick="agregarProducto()">AGREGAR NUEVO PRODUCTO</button>
+    </div>
+
+    <script>
+        let productosCache = [];
+
+     
+        async function listarProductos() {
+            try {
+                const response = await fetch('/api/productos');
+                const data = await response.json();
+                productosCache = data.productos;
+                render();
+            } catch (error) {
+                console.error("Error cargando la tienda:", error);
+            }
+        }
+
+      
+        async function agregarProducto() {
+            const nombre = document.getElementById('nombreInput').value;
+            const precio = document.getElementById('precioInput').value;
+
+            if(!nombre || !precio) return alert("Completa todos los campos");
+
+            await fetch('/api/productos', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nombre, precio })
+            });
+
+            document.getElementById('nombreInput').value = '';
+            document.getElementById('precioInput').value = '';
+            listarProductos(); 
+        }
+
+        function ordenar(criterio) {
+            productosCache.sort((a, b) => {
+                if (criterio === 'precio') return a.precio - b.precio;
+                return a.nombre.localeCompare(b.nombre);
+            });
+            render();
+        }
+
+        function render() {
+            const div = document.getElementById('lista-articulos');
+            div.innerHTML = productosCache.map(p => `
+                <div class="producto-card">
+                    <img src="https://picsum.photos/50" class="digi-thumb" alt="item">
+                    <span><strong>${p.nombre}</strong></span>
+                    <span>$${p.precio} Bits</span>
+                </div>
+            `).join('');
+        }
+    </script>
+</body>
+</html>
