@@ -1,0 +1,94 @@
+/* Variables para facilitar cambios de color */
+:root {
+    --rojo-netflix: #E50914;
+    --gris-oscuro: #181818;
+    --gris-claro: #2f2f2f;
+    --blanco-suave: #f5f5f5;
+}
+
+body {
+    /* Degradado para que no sea un negro sólido y lúgubre */
+    background: radial-gradient(circle, #2b2b2b 0%, #111111 100%);
+    color: var(--blanco-suave);
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    min-height: 100vh;
+    padding-bottom: 50px;
+}
+
+h1 {
+    color: var(--rojo-netflix);
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    margin-bottom: 30px;
+}
+
+/* Tarjetas para los formularios */
+.container {
+    background-color: rgba(0, 0, 0, 0.6);
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    margin-top: 40px;
+    border: 1px solid #333;
+}
+
+/* Estilo de los inputs */
+.form-control {
+    background-color: var(--gris-claro);
+    border: 1px solid #444;
+    color: white;
+    border-radius: 5px;
+    transition: all 0.3s;
+}
+
+.form-control:focus {
+    background-color: #444;
+    border-color: var(--rojo-netflix);
+    box-shadow: 0 0 8px rgba(229, 9, 20, 0.4);
+    color: white;
+}
+
+/* Botones con estilo moderno */
+.btn-danger {
+    background-color: var(--rojo-netflix);
+    border: none;
+    font-weight: bold;
+    padding: 10px 20px;
+    transition: transform 0.2s, background-color 0.2s;
+}
+
+.btn-danger:hover {
+    background-color: #ff0a16;
+    transform: scale(1.05);
+}
+
+/* Tablas más elegantes */
+.table {
+    border-radius: 10px;
+    overflow: hidden;
+    background-color: var(--gris-oscuro);
+    border: none;
+}
+
+.table thead {
+    background-color: var(--rojo-netflix);
+    color: white;
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Navbar sutil */
+nav a {
+    color: #aaa !important;
+    text-decoration: none;
+    margin: 0 10px;
+    font-size: 0.9rem;
+}
+
+nav a:hover {
+    color: var(--rojo-netflix) !important;
+}

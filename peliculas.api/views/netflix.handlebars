@@ -1,0 +1,108 @@
+<div class="container text-center">
+    <h1 class="my-4">🎬 NETFLIX GESTIÓN</h1>
+    
+    <div class="mb-4">
+        <button class="btn btn-danger mx-2" onclick="cargar('peliculas')">LISTA DE PELÍCULAS</button>
+        <button class="btn btn-dark mx-2" onclick="cargar('series')">LISTA DE SERIES</button>
+    </div>
+
+    <div id="tabla-container" class="mt-4" style="display:none;">
+        <div class="table-responsive">
+            <table class="table table-dark table-hover">
+                <thead id="thead"></thead>
+                <tbody id="tbody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <hr class="my-5" style="border-top: 1px solid #444;">
+
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="p-3 border border-secondary rounded bg-black-50">
+                <h3 class="h5 mb-3">🎥 Agregar Película</h3>
+                <input type="text" id="p_nom" class="form-control mb-2" placeholder="Nombre de la película">
+                <input type="text" id="p_dir" class="form-control mb-2" placeholder="Director">
+                <input type="number" id="p_año" class="form-control mb-2" placeholder="Año de estreno">
+                <button class="btn btn-danger w-100 mt-2" onclick="guardar('pelicula')">AGREGAR NUEVA PELÍCULAS</button>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-4">
+            <div class="p-3 border border-secondary rounded bg-black-50">
+                <h3 class="h5 mb-3">📺 Agregar Serie</h3>
+                <input type="text" id="s_nom" class="form-control mb-2" placeholder="Nombre de la serie">
+                <input type="number" id="s_año" class="form-control mb-2" placeholder="Año de inicio">
+                <input type="number" id="s_temp" class="form-control mb-2" placeholder="Número de temporadas">
+                <button class="btn btn-danger w-100 mt-2" onclick="guardar('serie')">AGREGAR NUEVA SERIE</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+async function cargar(tipo) {
+    const res = await fetch(`/contenido?tipo=${tipo}`);
+    const data = await res.json();
+    const lista = data[tipo];
+    
+    document.getElementById('tabla-container').style.display = 'block';
+    const thead = document.getElementById('thead');
+    const tbody = document.getElementById('tbody');
+    
+    tbody.innerHTML = '';
+    if(tipo === 'peliculas') {
+        thead.innerHTML = '<tr><th>Título</th><th>Director</th><th>Año</th><th>Acción</th></tr>';
+    } else {
+        thead.innerHTML = '<tr><th>Título</th><th>Año</th><th>Temp.</th><th>Acción</th></tr>';
+    }
+
+    lista.forEach((item, index) => {
+        const columnas = item.split(',');
+        let fila = '<tr>';
+        columnas.forEach(col => fila += `<td>${col.trim()}</td>`);
+        fila += `<td>
+                    <button class="btn btn-sm btn-outline-danger" onclick="eliminar('${tipo}', ${index})">
+                        🗑️
+                    </button>
+                 </td>`;
+        fila += '</tr>';
+        tbody.innerHTML += fila;
+    });
+}
+
+async function guardar(tipo) {
+    const body = tipo === 'pelicula' 
+        ? { tipo, nombre: document.getElementById('p_nom').value, director: document.getElementById('p_dir').value, año: document.getElementById('p_año').value }
+        : { tipo, nombre: document.getElementById('s_nom').value, año: document.getElementById('s_año').value, temporadas: document.getElementById('s_temp').value };
+
+    if(!body.nombre || !body.año) return alert("Por favor completa los campos principales");
+
+    const res = await fetch('/contenido', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(body)
+    });
+
+    if(res.ok) {
+        alert('Guardado con éxito');
+        location.reload(); 
+    }
+}
+
+async function eliminar(tipo, index) {
+    if(!confirm("¿Estás seguro de que deseas eliminar este registro?")) return;
+
+    const res = await fetch('/contenido', {
+        method: 'DELETE',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ tipo, index })
+    });
+
+    if(res.ok) {
+        cargar(tipo); 
+    } else {
+        alert("Error al intentar eliminar");
+    }
+}
+</script>
