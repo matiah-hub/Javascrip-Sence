@@ -1,0 +1,42 @@
+[
+  {
+    "nombre": "Matías Alonso",
+    "rut": "19.113.238-6",
+    "cuentaRut": {
+      "numero": "19113238",
+      "saldo": 0
+    },
+    "cuentasAhorro": [
+      {
+        "id": "ahorro1",
+        "saldo": 50500
+      },
+      {
+        "id": "ahorro2",
+        "saldo": 50500
+      },
+      {
+        "id": "ahorro3",
+        "saldo": 50500
+      }
+    ]
+  },
+  {
+    "nombre": "jorge sanchez",
+    "rut": "23.564.235-6",
+    "cuentaRut": {
+      "numero": "23564235",
+      "saldo": 0
+    },
+    "cuentasAhorro": [
+      {
+        "id": "ahorro3",
+        "saldo": 50500
+      },
+      {
+        "id": "ahorro1",
+        "saldo": 50500
+      }
+    ]
+  }
+]

@@ -1,0 +1,118 @@
+<div class="container mt-5">
+    <div class="bg-danger text-white p-4 rounded shadow mb-4">
+        <h1>🏦 Panel Ejecutivo BancoEstado</h1>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card p-3 shadow-sm mb-3">
+                <h5 class="border-bottom pb-2">Registrar Cliente</h5>
+                <input type="text" id="nombre" class="form-control mb-2" placeholder="Nombre">
+                <input type="text" id="rut" class="form-control mb-2" placeholder="RUT">
+                <input type="text" id="nCuenta" class="form-control mb-3" placeholder="N° Cuenta RUT">
+                <button class="btn btn-danger w-100" onclick="crearCliente()">Registrar</button>
+            </div>
+            
+            <div class="card p-3 shadow-sm">
+                <h5 class="border-bottom pb-2">Vincular Ahorro</h5>
+                <input type="text" id="rAhorro" class="form-control mb-2" placeholder="RUT del Cliente">
+                <input type="text" id="idAh" class="form-control mb-2" placeholder="ID Ahorro">
+                <input type="number" id="sAh" class="form-control mb-3" placeholder="Saldo Inicial">
+                <button class="btn btn-warning w-100" onclick="agregarAhorro()">Agregar Cuenta</button>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="card p-3 mb-3 shadow-sm border-danger">
+                <div class="input-group">
+                    <span class="input-group-text bg-danger text-white">🔍</span>
+                    <input type="text" id="buscadorRut" class="form-control" placeholder="Buscar por RUT o Nombre..." onkeyup="filtrarTabla()">
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-between mb-2">
+                <h3>Lista de Clientes</h3>
+                <button class="btn btn-dark btn-sm" onclick="listarClientes()">Refrescar</button>
+            </div>
+
+            <table class="table table-bordered bg-white shadow-sm">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Cliente / RUT</th>
+                        <th>Cuenta RUT</th>
+                        <th>Ahorros</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaClientes">
+                    </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    function filtrarTabla() {
+        const busqueda = document.getElementById('buscadorRut').value.toLowerCase();
+        const filas = document.getElementById('tablaClientes').getElementsByTagName('tr');
+
+        for (let i = 0; i < filas.length; i++) {
+            const textoFila = filas[i].innerText.toLowerCase();
+            filas[i].style.display = textoFila.includes(busqueda) ? "" : "none";
+        }
+    }
+
+    async function listarClientes() {
+        const res = await fetch('/api/clientes');
+        const clientes = await res.json();
+        const tbody = document.getElementById('tablaClientes');
+        tbody.innerHTML = '';
+        
+        clientes.forEach(c => {
+            const ahorros = c.cuentasAhorro.map(a => `<li>${a.id} ($${a.saldo})</li>`).join('');
+            tbody.innerHTML += `
+                <tr>
+                    <td><strong>${c.nombre}</strong><br><small>${c.rut}</small></td>
+                    <td>${c.cuentaRut.numero}</td>
+                    <td><ul>${ahorros || 'Sin ahorros'}</ul></td>
+                    <td><button class="btn btn-sm btn-outline-danger" onclick="eliminarCliente('${c.rut}')">Borrar</button></td>
+                </tr>`;
+        });
+    }
+
+    async function crearCliente() {
+        const body = {
+            nombre: document.getElementById('nombre').value,
+            rut: document.getElementById('rut').value,
+            numeroCuenta: document.getElementById('nCuenta').value
+        };
+        await fetch('/api/clientes', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(body)
+        });
+        listarClientes();
+    }
+
+    async function agregarAhorro() {
+        const body = {
+            rut: document.getElementById('rAhorro').value,
+            idAhorro: document.getElementById('idAh').value,
+            saldo: document.getElementById('sAh').value
+        };
+        await fetch('/api/clientes/ahorro', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(body)
+        });
+        listarClientes();
+    }
+
+    async function eliminarCliente(rut) {
+        if(!confirm('¿Eliminar cliente?')) return;
+        await fetch('/api/clientes/' + rut, { method: 'DELETE' });
+        listarClientes();
+    }
+
+    window.onload = listarClientes;
+</script>
