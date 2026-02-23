@@ -1,0 +1,115 @@
+<div class="container mt-4">
+    <div class="bg-danger text-white p-4 rounded shadow mb-4">
+        <h1>🏦 Gestión BancoEstado (Actividad 12)</h1>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card p-3 shadow-sm mb-3 border-danger">
+                <h5>1. Nuevo Cliente + RUT</h5>
+                <input type="text" id="nombre" class="form-control mb-2" placeholder="Nombre">
+                <input type="text" id="rut" class="form-control mb-2" placeholder="RUT">
+                <input type="text" id="nCuenta" class="form-control mb-3" placeholder="N° Cuenta RUT">
+                <button class="btn btn-danger w-100" onclick="crearCliente()">Registrar</button>
+            </div>
+            
+            <div class="card p-3 shadow-sm border-warning">
+                <h5>2. Vincular Cuenta Ahorro</h5>
+                <input type="text" id="rAh" class="form-control mb-2" placeholder="RUT Cliente">
+                <input type="text" id="idAh" class="form-control mb-2" placeholder="ID Ahorro">
+                <input type="number" id="sAh" class="form-control mb-3" placeholder="Saldo">
+                <button class="btn btn-warning w-100" onclick="agregarAhorro()">Vincular Ahorro</button>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="card p-2 mb-3 shadow-sm bg-light">
+                <input type="text" id="busc" class="form-control" placeholder="🔍 Filtrar por RUT..." onkeyup="filtrar()">
+            </div>
+            <table class="table table-hover bg-white shadow-sm border">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Cliente</th>
+                        <th>Cuenta RUT</th>
+                        <th>Ahorros</th>
+                        <th>Acción Global</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaClientes"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    async function listar() {
+        const res = await fetch('/api/clientes');
+        const clientes = await res.json();
+        const tbody = document.getElementById('tablaClientes');
+        tbody.innerHTML = '';
+
+        clientes.forEach(c => {
+            const ahorrosHtml = c.cuentasAhorro.map(a => `
+                <li class="d-flex justify-content-between align-items-center mb-1">
+                    ${a.id} ($${a.saldo})
+                    <button class="btn btn-sm text-danger p-0" onclick="borrarAhorro('${c.rut}', '${a.id}')">✖</button>
+                </li>`).join('');
+
+            const rutHtml = c.cuentaRut 
+                ? `${c.cuentaRut.numero} <button class="btn btn-sm text-danger p-0 ms-2" onclick="borrarRut('${c.rut}')">✖</button>` 
+                : '<span class="text-muted">Sin RUT</span>';
+
+            tbody.innerHTML += `
+                <tr>
+                    <td><strong>${c.nombre}</strong><br><small>${c.rut}</small></td>
+                    <td>${rutHtml}</td>
+                    <td><ul class="ps-3 mb-0">${ahorrosHtml || '---'}</ul></td>
+                    <td>
+                        <button class="btn btn-sm btn-danger" onclick="borrarTodo('${c.rut}')">Eliminar Cliente</button>
+                    </td>
+                </tr>`;
+        });
+    }
+
+
+    async function crearCliente() {
+        const body = { nombre: nombre.value, rut: rut.value, numeroCuenta: nCuenta.value };
+        await fetch('/api/clientes', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body) });
+        listar();
+    }
+
+    async function agregarAhorro() {
+        const body = { rut: rAh.value, idAhorro: idAh.value, saldo: sAh.value };
+        await fetch('/api/clientes/ahorro', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body) });
+        listar();
+    }
+
+    async function borrarTodo(rut) {
+        if(confirm('¿Borrar cliente y todas sus cuentas?')) {
+            await fetch('/api/clientes/' + rut, { method: 'DELETE' });
+            listar();
+        }
+    }
+
+    async function borrarRut(rut) {
+        if(confirm('¿Eliminar solo la cuenta RUT?')) {
+            await fetch(`/api/clientes/${rut}/rut`, { method: 'DELETE' });
+            listar();
+        }
+    }
+
+    async function borrarAhorro(rut, id) {
+        if(confirm('¿Eliminar esta cuenta de ahorro?')) {
+            await fetch(`/api/clientes/${rut}/ahorro/${id}`, { method: 'DELETE' });
+            listar();
+        }
+    }
+
+    function filtrar() {
+        const val = busc.value.toLowerCase();
+        const filas = document.querySelectorAll('#tablaClientes tr');
+        filas.forEach(f => f.style.display = f.innerText.toLowerCase().includes(val) ? '' : 'none');
+    }
+
+    window.onload = listar;
+</script>
