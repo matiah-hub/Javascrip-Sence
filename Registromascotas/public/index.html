@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="./assets/css/style.css" />
+  <title>Registro Civil de Mascotas</title>
+  <style>
+    body { font-family: system-ui, Arial; max-width: 900px; margin: 24px auto; padding: 0 12px; }
+    .row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+    input, button { padding: 8px; }
+    button { cursor: pointer; }
+    pre { background: #f6f6f6; padding: 12px; overflow:auto; }
+    .error { background: #ffe5e5; padding: 10px; border: 1px solid #ff9b9b; margin: 12px 0; display:none; }
+    .ok { background: #e7ffe5; padding: 10px; border: 1px solid #97ff9b; margin: 12px 0; display:none; }
+  </style>
+</head>
+<body>  
+ <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 30px; border-bottom: 2px solid #0033a0; padding-bottom: 10px;">
+  <img 
+    src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSvJXITTG4fkVSqlWXBO3C-BBc0Rqyjt-YygQ&s" 
+    alt="Logo Gobierno" 
+    style="width: 120px; height: auto;"
+  >
+  <h1 style="color: #0033a0; margin: 0;">Registro Civil de Mascotas</h1>
+</div>
+  <div class="row">
+    <button id="btnAll">Mascotas registradas</button>
+  </div>
+
+  <h3>Buscar</h3>
+  <div class="row">
+    <input id="qNombre" placeholder="nombre (ej: Firulais)" />
+    <button id="btnByNombre">Buscar por nombre</button>
+  </div>
+  <div class="row">
+    <input id="qRut" placeholder="rut (ej: 12.345.678-9)" />
+    <button id="btnByRut">Buscar por rut</button>
+  </div>
+
+  <h3>Crear mascota</h3>
+  <div class="row">
+    <input id="cNombre" placeholder="nombre" />
+    <input id="cRut" placeholder="rut dueño" />
+    <button id="btnCreate">Registrar Mascota </button>
+  </div>
+
+  <h3>Eliminar</h3>
+  <div class="row">
+    <input id="dNombre" placeholder="nombre" />
+    <button id="btnDelNombre">Eliminar por nombre</button>
+  </div>
+  <div class="row">
+    <input id="dRut" placeholder="rut" />
+    <button id="btnDelRut">Eliminar por rut</button>
+  </div>
+
+  <div id="msgOk" class="ok"></div>
+  <div id="msgError" class="error"></div>
+
+  <h3>Respuesta</h3>
+  <pre id="out">{}</pre>
+
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script src="./assets/js/script.js"></script>
+</body>
+</html>
