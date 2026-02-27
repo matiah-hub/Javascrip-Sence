@@ -1,0 +1,85 @@
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-6 border p-3">
+            <h3>🆕 Crear Cliente</h3>
+            <input type="text" id="c_rut" placeholder="RUT" class="form-control mb-2">
+            <input type="text" id="c_nombre" placeholder="Nombre" class="form-control mb-2">
+            <input type="number" id="c_edad" placeholder="Edad" class="form-control mb-2">
+            <button onclick="crearCliente()" class="btn btn-success">Guardar</button>
+        </div>
+
+        <div class="col-md-6 border p-3">
+            <h3>✏️ Modificar Nombre</h3>
+            <input type="text" id="u_rut" placeholder="RUT del cliente" class="form-control mb-2">
+            <input type="text" id="u_nombre" placeholder="Nuevo Nombre" class="form-control mb-2">
+            <button onclick="actualizarCliente()" class="btn btn-warning">Actualizar</button>
+        </div>
+    </div>
+
+    <hr>
+
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <h3>📋 Listado y Gestión</h3>
+            <button onclick="listarClientes()" class="btn btn-primary mb-3">Consultar Todos</button>
+            <table class="table table-striped">
+                <thead>
+                    <tr><th>RUT</th><th>Nombre</th><th>Edad</th><th>Acciones</th></tr>
+                </thead>
+                <tbody id="tabla_clientes"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    async function listarClientes() {
+        const res = await fetch('/clientes');
+        const data = await res.json();
+        const tabla = document.getElementById('tabla_clientes');
+        tabla.innerHTML = data.map(c => `
+            <tr>
+                <td>${c.rut}</td>
+                <td>${c.nombre}</td>
+                <td>${c.edad}</td>
+                <td><button onclick="eliminarCliente('${c.rut}')" class="btn btn-danger btn-sm">Eliminar</button></td>
+            </tr>
+        `).join('');
+    }
+
+    async function crearCliente() {
+        const rut = document.getElementById('c_rut').value;
+        const nombre = document.getElementById('c_nombre').value;
+        const edad = parseInt(document.getElementById('c_edad').value);
+
+        const res = await fetch('/clientes', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ rut, nombre, edad })
+        });
+        const data = await res.json();
+        document.getElementById('c_rut').value = "";
+        document.getElementById('c_nombre').value = "";
+        document.getElementById('c_edad').value = "";
+        alert(data.error || data.message);
+        listarClientes();
+    }
+
+    async function eliminarCliente(rut) {
+        if(!confirm("¿Seguro?")) return;
+        await fetch(`/clientes/${rut}`, { method: 'DELETE' });
+        listarClientes();
+    }
+
+    async function actualizarCliente() {
+        const rut = document.getElementById('u_rut').value;
+        const nombre = document.getElementById('u_nombre').value;
+        await fetch(`/clientes/${rut}`, {
+            method: 'PUT',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ nombre })
+        });
+        listarClientes();
+    }
+    window.onload = listarClientes; 
+</script>
