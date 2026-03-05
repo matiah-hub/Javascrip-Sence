@@ -1,16 +1,19 @@
 {
-  "name": "gestion-de-productos",
+  "dependencies": {
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "pg": "^8.20.0"
+  },
+  "name": "compras",
   "version": "1.0.0",
   "description": "",
-  "main": "tienda.js",
+  "main": "index.js",
+  "devDependencies": {},
   "scripts": {
+    "start": "node app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
-  "type": "commonjs",
-  "dependencies": {
-    "express": "^5.2.1"
-  }
+  "license": "ISC"
 }
