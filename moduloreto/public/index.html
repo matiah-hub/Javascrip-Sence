@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Reto Módulo 7: PIB Mundial</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            padding: 20px;
+            background: #f0f2f5;
+        }
+
+        .container {
+            display: flex;
+            gap: 20px;
+        }
+
+        .box {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            flex: 1;
+        }
+
+        input,
+        button {
+            display: block;
+            width: 100%;
+            margin: 10px 0;
+            padding: 8px;
+        }
+
+        button {
+            cursor: pointer;
+            background: #2c3e50;
+            color: white;
+            border: none;
+        }
+
+        .card {
+            border-bottom: 1px solid #eee;
+            padding: 10px 0;
+        }
+
+        .btn-delete {
+            background: #e74c3c;
+            padding: 4px;
+            font-size: 10px;
+            width: auto;
+            display: inline;
+        }
+    </style>
+</head>
+
+<body>
+    <h2>📊 Gestión de Países y PIB</h2>
+    <div class="container">
+        <div class="box">
+            <h3>Añadir País</h3>
+            <form id="formAdd">
+                <input id="nom" placeholder="Nombre País" required>
+                <input id="p19" type="number" placeholder="PIB 2019" required>
+                <input id="p20" type="number" placeholder="PIB 2020" required>
+                <button type="submit">Guardar</button>
+            </form>
+            <hr>
+            <h3>Filtros</h3>
+            <button onclick="cargar('?pib=creciendo')">📈 Solo Crecientes</button>
+            <button onclick="cargar('?pib=decreciendo')">📉 Solo Decrecientes</button>
+            <input id="minPib" type="number" placeholder="PIB 2020 mínimo...">
+            <button onclick="cargar('?pib=' + document.getElementById('minPib').value)">Filtrar por Valor</button>
+            <button onclick="cargar('')" style="background: #7f8c8d;">Ver Todos</button>
+        </div>
+
+        <div class="box">
+            <h3>Lista de Resultados</h3>
+            <div id="lista"></div>
+        </div>
+    </div>
+
+    <script>
+        async function cargar(query = '') {
+            const res = await fetch('/paises' + query);
+            const datos = await res.json();
+            const lista = document.getElementById('lista');
+            lista.innerHTML = datos.map(p => `
+                <div class="card">
+                    <strong>${p.nombre}</strong><br>
+                    2019: ${p.pib_2019} | 2020: ${p.pib_2020}
+                    ${p.diferencia ? `<br><span style="color:blue">Diferencia: ${p.diferencia}</span>` : ''}
+                    <br><button class="btn-delete" onclick="eliminar('${p.nombre}')">Eliminar</button>
+                </div>
+            `).join('');
+        }
+
+        async function eliminar(nombre) {
+            if (confirm('¿Seguro?')) {
+                await fetch('/paises/' + nombre, { method: 'DELETE' });
+                cargar();
+            }
+        }
+
+        document.getElementById('formAdd').onsubmit = async (e) => {
+            e.preventDefault();
+            await fetch('/paises', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    nombre: document.getElementById('nom').value,
+                    pib_2019: document.getElementById('p19').value,
+                    pib_2020: document.getElementById('p20').value
+                })
+            });
+            e.target.reset();
+            cargar();
+        }
+
+        cargar();
+    </script>
+</body>
+
+</html>
