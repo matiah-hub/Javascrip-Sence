@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title> Modulo7 - Tienda</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f0f2f5; display: flex; flex-direction: column; align-items: center; }
+        header { background: #2c3e50; color: white; width: 100%; text-align: center; padding: 10px 0; margin-bottom: 20px; }
+        .container { display: grid; grid-template-columns: 1fr 350px; gap: 20px; max-width: 1000px; width: 95%; }
+        .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
+        th { background: #f8f9fa; }
+        input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background: #27ae60; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 16px; }
+        button:hover { background: #219150; }
+        #mensaje { padding: 10px; border-radius: 5px; margin-bottom: 15px; display: none; text-align: center; font-weight: bold; }
+        .error { background: #fab1a0; color: #c0392b; }
+        .success { background: #c2f0d5; color: #27ae60; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>🛒 Sistema de Compras </h1>
+</header>
+
+<div class="container">
+    <div class="card">
+        <h2>Inventario Disponible</h2>
+        <table>
+            <thead>
+                <tr><th>ID</th><th>Nombre</th><th>Precio</th><th>Stock</th></tr>
+            </thead>
+            <tbody id="tablaBody"></tbody>
+        </table>
+    </div>
+
+    <div class="card">
+        <h2>Realizar Compra</h2>
+        <div id="mensaje"></div>
+        <label>ID del Producto:</label>
+        <input type="number" id="inpId" placeholder="Ej: 2">
+        <label>Cantidad:</label>
+        <input type="number" id="inpCant" value="1">
+        <button onclick="comprar()">Confirmar Pago</button>
+        <p style="font-size: 12px; color: #666; margin-top: 15px;">
+            *El botón procesa una transacción: sí la compra falla, se realiza un Rollback para devolver el stock al estado exacto que tenía antes de iniciar la operación
+        </p>
+    </div>
+</div>
+
+<script>
+    async function cargar() {
+        const res = await fetch('/productos');
+        const data = await res.json();
+        const body = document.getElementById('tablaBody');
+        body.innerHTML = data.map(p => `
+            <tr>
+                <td>${p.id}</td>
+                <td>${p.nombre}</td>
+                <td>$${p.precio}</td>
+                <td><strong>${p.stock}</strong></td>
+            </tr>
+        `).join('');
+    }
+
+    async function comprar() {
+        const id = document.getElementById('inpId').value;
+        const cant = document.getElementById('inpCant').value;
+        const msg = document.getElementById('mensaje');
+
+        try {
+            const res = await fetch('/venta', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id_producto: id, cantidad: cant })
+            });
+
+            const data = await res.json();
+            msg.style.display = 'block';
+
+            if (res.ok) {
+                msg.className = 'success';
+                msg.innerText = data.mensaje;
+                cargar(); // Refrescar tabla
+            } else {
+                msg.className = 'error';
+                msg.innerText = "Error: " + data.error;
+            }
+        } catch (e) {
+            msg.className = 'error';
+            msg.innerText = "Error de conexión";
+        }
+    }
+
+    cargar();
+</script>
+</body>
+</html>
