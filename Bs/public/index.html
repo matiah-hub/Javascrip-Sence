@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Desafío Full Stack </title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 30px;
+            background-color: #f4f7f6;
+        }
+
+        .box {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-width: 450px;
+        }
+
+        h2 {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+
+        input {
+            width: 95%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        button {
+            cursor: pointer;
+            padding: 10px 15px;
+            border-radius: 5px;
+            border: none;
+            transition: 0.3s;
+        }
+
+        #listar {
+            background: #3498db;
+            color: white;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        #listar:hover {
+            background: #2980b9;
+        }
+
+        form button {
+            background: #27ae60;
+            color: white;
+            width: 100%;
+        }
+
+        form button:hover {
+            background: #219150;
+        }
+
+        ul {
+            margin-top: 20px;
+            padding: 0;
+            list-style: none;
+        }
+
+        li {
+            background: #ecf0f1;
+            margin-bottom: 5px;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="box">
+        <h2>👥 Registro de Clientes</h2>
+
+        <form id="form">
+            <input name="nombre" placeholder="Nombre completo" required />
+            <input name="email" placeholder="Correo electrónico" type="email" required />
+            <button type="submit">Guardar Cliente</button>
+        </form>
+
+        <button id="listar">Listar Clientes Existentes</button>
+        <ul id="lista"></ul>
+    </div>
+
+    <script>
+        const API = '/clientes';
+        const listaUl = document.getElementById('lista');
+
+        // Botón para listar clientes
+        document.getElementById('listar').onclick = async () => {
+            const respuesta = await fetch(API);
+            const datos = await respuesta.json();
+            listaUl.innerHTML = datos.map(c => `<li><strong>${c.nombre}</strong> <br> ${c.email}</li>`).join('');
+        };
+
+        // Formulario para agregar clientes
+        document.getElementById('form').onsubmit = async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const dataEnviar = {
+                nombre: formData.get('nombre'),
+                email: formData.get('email')
+            };
+
+            const respuesta = await fetch(API, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(dataEnviar)
+            });
+
+            if (respuesta.ok) {
+                alert('¡Cliente agregado con éxito!');
+                e.target.reset();
+                document.getElementById('listar').click(); // Actualizar lista automáticamente
+            } else {
+                alert('Hubo un error al guardar');
+            }
+        };
+    </script>
+</body>
+
+</html>
