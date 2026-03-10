@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Módulo 7 - Gestión de Países</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            padding: 20px;
+            color: #333;
+        }
+
+        .card {
+            background: white;
+            max-width: 950px;
+            margin: 0 auto 20px;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        h1,
+        h2 {
+            color: #007bff;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: #fff;
+        }
+
+        th {
+            background: #007bff;
+            color: white;
+            padding: 12px;
+            text-align: center;
+        }
+
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            text-align: center;
+        }
+
+        tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        input,
+        select {
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .btn:hover {
+            background: #218838;
+        }
+
+        .btn-del {
+            background: #dc3545;
+            padding: 6px 12px;
+            font-size: 13px;
+        }
+
+        .btn-del:hover {
+            background: #c82333;
+        }
+
+        .controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="card">
+        <h1>🌍 Panel de Control de Países</h1>
+        <div class="controls">
+            <label><strong>Ver bloques de:</strong></label>
+            <select id="size" style="width: auto;" onchange="cargar()">
+                <option value="5">5</option>
+                <option value="10" selected>10</option>
+                <option value="20">20</option>
+                <option value="50">50</option>
+            </select>
+            <button class="btn" style="background:#6c757d;" onclick="cargar()">🔄 Refrescar Tabla</button>
+        </div>
+
+        <table id="tabla">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Continente</th>
+                    <th>Población</th>
+                    <th>PIB 2019</th>
+                    <th>PIB 2020</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card">
+        <h2>➕ Registrar Nuevo País</h2>
+        <div class="form-grid">
+            <input type="text" id="nombre" placeholder="Nombre del país">
+            <input type="text" id="continente" placeholder="Continente">
+            <input type="number" id="poblacion" placeholder="Población total">
+            <input type="number" id="pib2019" placeholder="PIB Año 2019">
+            <input type="number" id="pib2020" placeholder="PIB Año 2020">
+        </div>
+        <button class="btn" style="width: 100%; margin-top: 20px;" onclick="guardar()">💾 Guardar con
+            Transacción</button>
+    </div>
+
+    <script>
+        // Función para cargar los datos usando el Cursor del servidor
+        async function cargar() {
+            try {
+                const size = document.getElementById('size').value;
+                const response = await fetch(`/paises?size=${size}`);
+                const data = await response.json();
+
+                const tbody = document.querySelector('#tabla tbody');
+                tbody.innerHTML = "";
+
+                data.forEach(p => {
+                    tbody.innerHTML += `
+                        <tr>
+                            <td><strong>${p.nombre}</strong></td>
+                            <td>${p.continente}</td>
+                            <td>${Number(p.poblacion).toLocaleString()}</td>
+                            <td>$${Number(p.pib_20_19 || p.pib_2019 || 0).toLocaleString()}</td>
+                            <td>$${Number(p.pib_20_20 || p.pib_2020 || 0).toLocaleString()}</td>
+                            <td>
+                                <button class="btn btn-del" onclick="eliminar('${p.nombre}')">Eliminar</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            } catch (error) {
+                console.error("Error al cargar datos:", error);
+            }
+        }
+
+        // Función para guardar con POST (Transacción)
+        async function guardar() {
+            const payload = {
+                nombre: document.getElementById('nombre').value,
+                continente: document.getElementById('continente').value,
+                poblacion: document.getElementById('poblacion').value,
+                pib2019: document.getElementById('pib2019').value,
+                pib2020: document.getElementById('pib2020').value
+            };
+
+            // Validación simple
+            if (!payload.nombre) return alert("El nombre es obligatorio");
+
+            try {
+                const response = await fetch('/paises', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const res = await response.json();
+
+                if (response.ok) {
+                    alert("✅ Éxito: " + res.mensaje);
+                    // Limpiar campos
+                    document.querySelectorAll('input').forEach(i => i.value = "");
+                    cargar();
+                } else {
+                    alert("❌ Error: " + (res.error || res.detalles));
+                }
+            } catch (error) {
+                alert("Error de conexión con el servidor");
+            }
+        }
+
+        // Función para eliminar con DELETE (Transacción)
+        async function eliminar(nombre) {
+            if (!confirm(`¿Estás seguro de que deseas eliminar permanentemente a ${nombre}?`)) return;
+
+            try {
+                const response = await fetch(`/paises/${encodeURIComponent(nombre)}`, {
+                    method: 'DELETE'
+                });
+
+                const res = await response.json();
+
+                if (response.ok) {
+                    alert("🗑️ " + res.mensaje);
+                    cargar();
+                } else {
+                    alert("❌ No se pudo eliminar: " + (res.error || res.detalles));
+                }
+            } catch (error) {
+                alert("Error al procesar la eliminación");
+            }
+        }
+
+        // Carga inicial al abrir la página
+        window.onload = cargar;
+    </script>
+</body>
+
+</html>
