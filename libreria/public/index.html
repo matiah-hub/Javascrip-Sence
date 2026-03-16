@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Biblioteca El Saber</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            max-width: 900px;
+            margin: auto;
+            padding: 20px;
+            background: #fdfdfd;
+        }
+
+        .form-container {
+            background: #eee;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th,
+        td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: center;
+        }
+
+        th {
+            background: #007bff;
+            color: white;
+        }
+
+        .btn {
+            padding: 8px 15px;
+            cursor: pointer;
+            border: none;
+            border-radius: 4px;
+            color: white;
+        }
+
+        .btn-save {
+            background: #28a745;
+        }
+
+        .btn-refresh {
+            background: #17a2b8;
+        }
+
+        .btn-del {
+            background: #dc3545;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h2>📚 Biblioteca El Saber - Inventario </h2>
+
+    <div class="form-container">
+        <h3>Formulario de Libro</h3>
+        <input type="hidden" id="libroId">
+        <input type="text" id="titulo" placeholder="Título">
+        <input type="text" id="autor" placeholder="Autor">
+        <input type="number" id="anio" placeholder="Año">
+        <button class="btn btn-save" onclick="guardar()">Guardar / Actualizar</button>
+        <button class="btn" style="background:#6c757d" onclick="limpiarFormulario()">Cancelar</button>
+    </div>
+
+    <button class="btn btn-refresh" onclick="cargarLibros()">🔄 Listar Todos los Libros</button>
+
+    <table id="tabla">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Título</th>
+                <th>Autor</th>
+                <th>Año</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <script>
+        const API = '/libros';
+
+        async function cargarLibros() {
+            const res = await fetch(API);
+            const { data } = await res.json();
+            const body = document.querySelector('#tabla tbody');
+
+            body.innerHTML = ""; // Limpiamos la tabla
+
+            data.forEach(l => {
+                body.innerHTML += `
+                    <tr>
+                        <td>${l.id}</td>
+                        <td>${l.titulo}</td>
+                        <td>${l.autor}</td>
+                        <td>${l.anio}</td>
+                        <td>
+                            <button onclick="editar(${l.id}, '${l.titulo}', '${l.autor}', ${l.anio})">✏️</button>
+                            <button class="btn btn-del" onclick="eliminar(${l.id})">🗑️</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        async function guardar() {
+            const id = document.getElementById('libroId').value;
+            const libro = {
+                titulo: document.getElementById('titulo').value,
+                autor: document.getElementById('autor').value,
+                anio: document.getElementById('anio').value
+            };
+
+            if (!libro.titulo || !libro.autor || !libro.anio) return alert("Completa todos los campos");
+
+            const config = {
+                method: id ? 'PUT' : 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(libro)
+            };
+
+            const url = id ? `${API}/${id}` : API;
+            const res = await fetch(url, config);
+
+            if (res.ok) {
+                alert("¡Éxito!");
+                limpiarFormulario();
+                cargarLibros();
+            }
+        }
+
+        async function eliminar(id) {
+            if (!confirm("¿Seguro que quieres borrarlo?")) return;
+            const res = await fetch(`${API}/${id}`, { method: 'DELETE' });
+            if (res.ok) cargarLibros();
+        }
+
+        function editar(id, titulo, autor, anio) {
+            document.getElementById('libroId').value = id;
+            document.getElementById('titulo').value = titulo;
+            document.getElementById('autor').value = autor;
+            document.getElementById('anio').value = anio;
+        }
+
+        function limpiarFormulario() {
+            document.getElementById('libroId').value = "";
+            document.getElementById('titulo').value = "";
+            document.getElementById('autor').value = "";
+            document.getElementById('anio').value = "";
+        }
+
+        // Carga automática al entrar
+        window.onload = cargarLibros;
+    </script>
+</body>
+
+</html>
