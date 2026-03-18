@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8">
+    <title>form con imagen </title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Bootstrap 5 CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-light">
+    <div class="container py-5" style="max-width: 720px;">
+        <h1 class="mb-4">Subir imagen</h1>
+        <form id="formUpload" action="/upload" method="POST" enctype="multipart/form-data"
+            class="border rounded p-4 bg-white">
+            <div class="mb-3">
+                <label for="inputFoto" class="form-label">Seleccione una imagen (jpg, jpeg, png, gif) máx. 5MB</label>
+                <input type="file" class="form-control" id="inputFoto" name="foto" accept="image/*" required>
+            </div>
+            <button class="btn btn-primary" type="submit">Subir</button>
+        </form>
+        <div id="mensaje"></div>
+        <img id="preview" src="" alt="" style="max-width: 100%; margin-top: 1rem; display: none;">
+
+        <div id="feedback" class="mt-4" style="display:none;"></div>
+    </div>
+
+    <script>
+        const form = document.getElementById('formUpload');
+        const mensaje = document.getElementById('mensaje');
+        const preview = document.getElementById('preview');
+
+        form.onsubmit = async (e) => {
+            e.preventDefault();
+
+            const formData = new FormData(form);
+
+            try {
+                const res = await fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await res.json();
+
+                if (data.ok) {
+                    mensaje.innerHTML = `<p class="text-success">${data.mensaje}</p>`;
+
+                    preview.src = data.ruta;
+                    preview.style.display = 'block';
+                } else {
+                    mensaje.innerHTML = `<p class="text-danger">${data.mensaje}</p>`;
+                    preview.style.display = 'none';
+                }
+            } catch (err) {
+                mensaje.innerHTML = `<p class="text-danger">Error de red</p>`;
+                console.error(err);
+            }
+        };
+    </script>
+</body>
+
+</html>
