@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Digi-Market E-commerce</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: #f0f2f5;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .out-of-stock {
+            filter: grayscale(1);
+            opacity: 0.6;
+        }
+
+        .product-img {
+            height: 100px;
+            object-fit: contain;
+        }
+
+        .old-price {
+            text-decoration: line-through;
+            color: #888;
+            font-size: 0.8rem;
+        }
+
+        .discount-tag {
+            background: #ff4757;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+
+        #timerDisplay {
+            font-family: monospace;
+            font-size: 1.3rem;
+            color: #ff4757;
+            font-weight: bold;
+        }
+
+        .edit-img-btn:hover {
+            border: 2px solid #0dcaf0 !important;
+            cursor: pointer;
+            opacity: 0.8;
+        }
+
+        #toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 2000;
+            display: none;
+            background: #222;
+            color: #fff;
+            padding: 12px 25px;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="toast">✅ Acción completada</div>
+
+    <nav class="navbar navbar-dark bg-dark p-3 sticky-top">
+        <div class="container d-flex justify-content-between">
+            <span class="navbar-brand fw-bold text-info">👾 DIGI-MARKET CLP</span>
+            <div id="navUI" class="hidden">
+                <button class="btn btn-info btn-sm fw-bold" onclick="abrirCarrito()">🛒 Carrito <span id="cartBadge"
+                        class="badge bg-danger">0</span></button>
+                <button class="btn btn-outline-light btn-sm ms-2" onclick="logout()">Salir</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container my-5">
+        <div id="loginView" class="row justify-content-center">
+            <div class="col-md-4 card p-5 bg-white">
+                <h4 class="text-center mb-4 fw-bold">Acceso Admin</h4>
+                <input type="email" id="logEmail" class="form-control mb-3" placeholder="Email">
+                <input type="password" id="logPass" class="form-control mb-4" placeholder="Password">
+                <button class="btn btn-primary w-100 fw-bold" onclick="login()">ENTRAR</button>
+            </div>
+        </div>
+
+        <div id="mainView" class="hidden">
+            <ul class="nav nav-pills nav-fill mb-4 p-2 bg-white rounded shadow-sm">
+                <li class="nav-item"><button class="nav-link active" id="tab-tienda" onclick="irA('tienda')">🏪
+                        TIENDA</button></li>
+                <li class="nav-item"><button class="nav-link" id="tab-admin" onclick="irA('admin')">🛠️ PANEL
+                        CONTROL</button></li>
+                <li class="nav-item"><button class="nav-link" id="tab-historial" onclick="irA('historial')">📊
+                        VENTAS</button></li>
+            </ul>
+
+            <div id="vista-tienda">
+                <div id="ofertaBanner"
+                    class="alert alert-danger hidden d-flex justify-content-between align-items-center">
+                    <span>🔥 ¡OFERTA RELÁMPAGO ACTIVA!</span>
+                    <span id="timerDisplay">00:00</span>
+                </div>
+                <div id="productList" class="row row-cols-1 row-cols-md-4 g-4"></div>
+            </div>
+
+            <div id="vista-admin" class="hidden">
+                <div class="card p-3 mb-4 bg-white border-start border-4 border-danger shadow-sm">
+                    <div class="row g-2 align-items-end">
+                        <div class="col-md-2">
+                            <label class="small fw-bold">Dcto Global %</label>
+                            <input type="number" id="globalInput" class="form-control form-control-sm">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="small fw-bold">Minutos</label>
+                            <input type="number" id="timerInput" class="form-control form-control-sm">
+                        </div>
+                        <div class="col-md-4">
+                            <button class="btn btn-danger btn-sm fw-bold w-100" onclick="iniciarOfertaTemporal()">🚀
+                                INICIAR OFERTA</button>
+                        </div>
+                        <div class="col-md-4">
+                            <button class="btn btn-outline-dark btn-sm fw-bold w-100"
+                                onclick="quitarTodosLosDescuentos()">❌ LIMPIAR DCTOS (0%)</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card shadow-sm overflow-hidden bg-white mb-4">
+                    <table class="table align-middle m-0 table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Img</th>
+                                <th>Nombre</th>
+                                <th>Descripción</th>
+                                <th>Precio</th>
+                                <th>Stock</th>
+                                <th>% Dcto</th>
+                                <th>Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminTable"></tbody>
+                    </table>
+                    <div class="p-3 bg-light text-end">
+                        <button class="btn btn-primary fw-bold" onclick="guardarTodo()">💾 GUARDAR CAMBIOS DE
+                            TABLA</button>
+                    </div>
+                </div>
+
+                <button class="btn btn-success btn-sm mb-3"
+                    onclick="document.getElementById('formAdd').classList.toggle('hidden')">+ Nuevo Producto</button>
+                <div id="formAdd" class="card p-4 hidden">
+                    <form id="productForm" class="row g-2">
+                        <div class="col-md-3"><input type="text" id="nName" class="form-control" placeholder="Nombre"
+                                required></div>
+                        <div class="col-md-4"><input type="text" id="nDesc" class="form-control"
+                                placeholder="Descripción"></div>
+                        <div class="col-md-1"><input type="number" id="nPrice" class="form-control"
+                                placeholder="Precio"></div>
+                        <div class="col-md-1"><input type="number" id="nStock" class="form-control" placeholder="Stock">
+                        </div>
+                        <div class="col-md-3"><input type="file" id="nFile" class="form-control"></div>
+                        <button type="submit" class="btn btn-success w-100 mt-2 fw-bold">SUBIR PRODUCTO</button>
+                    </form>
+                </div>
+            </div>
+
+            <div id="vista-historial" class="hidden">
+                <button class="btn btn-dark btn-sm mb-3" onclick="reporteConsola()">📄 Ver Reporte Detallado
+                    (Consola)</button>
+                <div class="card p-3 bg-white">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Producto</th>
+                                <th>Cant.</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historyTable"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="cartModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-dark text-white">
+                    <h5>Carrito</h5>
+                </div>
+                <div class="modal-body">
+                    <div id="cartItems"></div>
+                    <div class="mt-3 p-3 bg-light border rounded">
+                        <label class="small fw-bold">Cupón (20% OFF):</label>
+                        <div class="d-flex gap-2">
+                            <input type="text" id="couponInput" class="form-control form-control-sm"
+                                placeholder="DIGIEVOLUCION">
+                            <button class="btn btn-dark btn-sm" onclick="validarCupon()">Aplicar</button>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between"><span>Total:</span>
+                        <h4 id="totalText" class="text-success fw-bold">$0</h4>
+                    </div>
+                </div>
+                <div class="modal-footer"><button class="btn btn-primary w-100 fw-bold"
+                        onclick="pagar()">COMPRAR</button></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const API = 'http://localhost:3000/api';
+        let token = localStorage.getItem('token');
+        let totalNeto = 0, factorCupon = 1.0, countdownInterval;
+
+        const fCLP = (n) => new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', minimumFractionDigits: 0 }).format(n);
+
+        document.addEventListener('DOMContentLoaded', () => { if (token) mostrarSeccion(); refresh(); });
+
+        async function refresh() {
+            const res = await fetch(`${API}/products`);
+            const prods = await res.json();
+
+            // TIENDA
+            document.getElementById('productList').innerHTML = prods.map(p => {
+                const finalP = p.discount_percent > 0 ? p.price * (1 - (p.discount_percent / 100)) : p.price;
+                return `
+                <div class="col">
+                    <div class="card h-100 p-3 text-center bg-white ${p.stock <= 0 ? 'out-of-stock' : ''}">
+                        <img src="${p.image_url}" class="product-img mb-2" onerror="this.src='https://placehold.co/200x200?text=Digimon'">
+                        <h6 class="fw-bold mb-1">${p.name}</h6>
+                        <p class="small text-muted mb-2">${p.description || ''}</p>
+                        <div>
+                            ${p.discount_percent > 0 ? `<span class="old-price">${fCLP(p.price)}</span> <span class="discount-tag">-${p.discount_percent}%</span><br>` : ''}
+                            <h5 class="text-primary fw-bold">${fCLP(finalP)}</h5>
+                        </div>
+                        <button class="btn btn-primary btn-sm mt-2 w-100" onclick="addToCart(${p.id})" ${p.stock <= 0 ? 'disabled' : ''}>Añadir</button>
+                    </div>
+                </div>`;
+            }).join('');
+
+            // ADMIN (TODOS LOS CAMPOS EDITABLES)
+            document.getElementById('adminTable').innerHTML = prods.map(p => `
+                <tr data-id="${p.id}">
+                    <td class="text-center">
+                        <img src="${p.image_url}" width="40" height="40" class="rounded border edit-img-btn" 
+                             onerror="this.src='https://placehold.co/50x50?text=Subir'"
+                             onclick="document.getElementById('file-${p.id}').click()">
+                        <input type="file" id="file-${p.id}" class="hidden" onchange="cambiarImagenDirecta(${p.id}, this)">
+                    </td>
+                    <td><input type="text" class="form-control form-control-sm r-name" value="${p.name}"></td>
+                    <td><input type="text" class="form-control form-control-sm r-desc" value="${p.description || ''}"></td>
+                    <td><input type="number" class="form-control form-control-sm r-price" value="${p.price}" style="width:90px"></td>
+                    <td><input type="number" class="form-control form-control-sm r-stock" value="${p.stock}" style="width:70px"></td>
+                    <td><input type="number" class="form-control form-control-sm r-pct" value="${p.discount_percent}" style="width:60px"></td>
+                    <td><button class="btn btn-outline-danger btn-sm" onclick="eliminar(${p.id})">🗑️</button></td>
+                </tr>`).join('');
+            cargarHistorial();
+        }
+
+        // GUARDADO MASIVO (INCLUYE NOMBRE Y DESC)
+        async function guardarTodo() {
+            const products = [];
+            document.querySelectorAll('#adminTable tr').forEach(row => {
+                products.push({
+                    id: row.dataset.id,
+                    name: row.querySelector('.r-name').value,
+                    description: row.querySelector('.r-desc').value,
+                    price: row.querySelector('.r-price').value,
+                    stock: row.querySelector('.r-stock').value,
+                    discount_percent: row.querySelector('.r-pct').value
+                });
+            });
+            await fetch(`${API}/products/bulk-update`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, body: JSON.stringify({ products }) });
+            showToast("✅ Base de datos actualizada"); refresh();
+        }
+
+        async function cambiarImagenDirecta(id, input) {
+            if (!input.files[0]) return;
+            const fd = new FormData(); fd.append('image', input.files[0]);
+            showToast("⏳ Subiendo...");
+            const res = await fetch(`${API}/products/${id}/update-image`, { method: 'POST', headers: { 'Authorization': `Bearer ${token}` }, body: fd });
+            if (res.ok) { showToast("✅ Imagen cambiada"); refresh(); }
+        }
+
+        // DESCUENTOS GLOBALES Y TIEMPO
+        async function quitarTodosLosDescuentos() {
+            await fetch(`${API}/products/clear-discounts`, { method: 'POST', headers: { 'Authorization': `Bearer ${token}` } });
+            clearInterval(countdownInterval);
+            document.getElementById('ofertaBanner').classList.add('hidden');
+            refresh(); showToast("❌ Descuentos eliminados");
+        }
+
+        async function iniciarOfertaTemporal() {
+            const pct = globalInput.value, mins = timerInput.value;
+            if (!pct || !mins) return alert("Faltan datos");
+            await fetch(`${API}/products/global-discount`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, body: JSON.stringify({ percent: pct }) });
+            startTimer(mins); refresh();
+        }
+
+        function startTimer(duration) {
+            clearInterval(countdownInterval);
+            let time = duration * 60;
+            document.getElementById('ofertaBanner').classList.remove('hidden');
+            countdownInterval = setInterval(async () => {
+                let m = Math.floor(time / 60), s = time % 60;
+                timerDisplay.textContent = `${m < 10 ? '0' + m : m}:${s < 10 ? '0' + s : s}`;
+                if (--time < 0) {
+                    clearInterval(countdownInterval);
+                    await fetch(`${API}/products/clear-discounts`, { method: 'POST', headers: { 'Authorization': `Bearer ${token}` } });
+                    document.getElementById('ofertaBanner').classList.add('hidden');
+                    refresh();
+                }
+            }, 1000);
+        }
+
+        // CARRITO
+        async function addToCart(id) {
+            await fetch(`${API}/cart`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, body: JSON.stringify({ productId: id, quantity: 1 }) });
+            loadCart(); showToast("🛒 Producto añadido");
+        }
+
+        async function loadCart() {
+            const res = await fetch(`${API}/cart`, { headers: { 'Authorization': `Bearer ${token}` } });
+            const d = await res.json();
+            totalNeto = 0;
+            document.getElementById('cartItems').innerHTML = d.cart.map(i => {
+                const sub = (i.price * (1 - (i.discount_percent / 100))) * i.quantity;
+                totalNeto += sub;
+                return `<div class="d-flex justify-content-between small border-bottom mb-1 pb-1"><span><b>${i.name}</b> x${i.quantity}</span><span>${fCLP(sub)}</span></div>`;
+            }).join('');
+            actualizarTotalUI();
+            cartBadge.innerText = d.cart.length;
+        }
+
+        function validarCupon() {
+            factorCupon = (couponInput.value === 'DIGIEVOLUCION') ? 0.8 : 1.0;
+            showToast(factorCupon < 1.0 ? "🔥 Cupón Activado" : "❌ Cupón Inválido");
+            actualizarTotalUI();
+        }
+
+        function actualizarTotalUI() { totalText.innerText = fCLP(totalNeto * factorCupon); }
+
+        async function pagar() {
+            const res = await fetch(`${API}/cart/checkout`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, body: JSON.stringify({ couponApplied: (factorCupon < 1.0) }) });
+            if (res.ok) { alert("¡Compra realizada!"); location.reload(); }
+        }
+
+        // AUXILIARES
+        async function login() {
+            const res = await fetch(`${API}/auth/login`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: logEmail.value, password: logPass.value }) });
+            const d = await res.json();
+            if (d.ok) { localStorage.setItem('token', d.token); location.reload(); }
+        }
+
+        document.getElementById('productForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const fd = new FormData(e.target);
+            fd.append('name', nName.value); fd.append('description', nDesc.value);
+            fd.append('price', nPrice.value); fd.append('stock', nStock.value); fd.append('image', nFile.files[0]);
+            await fetch(`${API}/products`, { method: 'POST', headers: { 'Authorization': `Bearer ${token}` }, body: fd });
+            refresh(); e.target.reset(); formAdd.classList.add('hidden');
+        };
+
+        async function cargarHistorial() {
+            const res = await fetch(`${API}/history`, { headers: { 'Authorization': `Bearer ${token}` } });
+            const data = await res.json();
+            historyTable.innerHTML = data.map(h => `<tr><td class="small">${new Date(h.sale_date).toLocaleTimeString()}</td><td>${h.product_name}</td><td>${h.quantity}</td><td>${fCLP(h.total_price)}</td></tr>`).join('');
+            window.rawHistory = data;
+        }
+
+        function reporteConsola() { console.clear(); console.table(window.rawHistory); }
+        function irA(v) { ['tienda', 'admin', 'historial'].forEach(s => { document.getElementById(`vista-${s}`).classList.toggle('hidden', s !== v); document.getElementById(`tab-${s}`).classList.toggle('active', s === v); }); }
+        function mostrarSeccion() { loginView.classList.add('hidden'); mainView.classList.remove('hidden'); navUI.classList.remove('hidden'); loadCart(); }
+        function showToast(m) { toast.innerText = m; toast.style.display = 'block'; setTimeout(() => toast.style.display = 'none', 2000); }
+        function abrirCarrito() { new bootstrap.Modal(document.getElementById('cartModal')).show(); }
+        function logout() { localStorage.clear(); location.reload(); }
+        async function eliminar(id) { if (confirm("¿Eliminar?")) { await fetch(`${API}/products/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } }); refresh(); } }
+    </script>
+</body>
+
+</html>
