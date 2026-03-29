@@ -1,0 +1,1413 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Digi-Market | Fase Test</title>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .reina-card {
+            border: 3px solid #ffd700 !important;
+            background: #fffcf0;
+        }
+
+        .product-img {
+            height: 120px;
+            object-fit: contain;
+        }
+
+        .card-novato {
+            border: 2px solid #a8e6cf;
+            box-shadow: 0 4px 8px rgba(168, 230, 207, 0.3);
+        }
+
+        .card-campeon {
+            border: 2px solid #ffd3b6;
+            box-shadow: 0 4px 8px rgba(255, 211, 182, 0.3);
+        }
+
+        .card-mega {
+            border: 2px solid #ff8b94;
+            box-shadow: 0 4px 8px rgba(255, 139, 148, 0.3);
+        }
+
+        #cartBody {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        #toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(5px);
+            color: #00f2fe;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            border-left: 5px solid #00f2fe;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            display: none;
+            z-index: 9999;
+            font-weight: bold;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .loader {
+            border: 5px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 5px solid #17a2b8;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            display: none;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .btn-glow {
+            animation: glow 1.5s infinite alternate;
+        }
+
+        @keyframes glow {
+            from { box-shadow: 0 0 5px #17a2b8; }
+            to { box-shadow: 0 0 20px #17a2b8; }
+        }
+
+        .badge-new {
+            background: linear-gradient(45deg, #00f2fe 0%, #4facfe 100%);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+
+<body class="bg-light">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top shadow">
+        <div class="container">
+            <a class="navbar-brand fw-bold text-info" href="#" onclick="irA('inicio')">👾 DIGI-MARKET</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div id="auth-section">
+                <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#authModal">
+                    Entrar / Registrarse
+                </button>
+            </div>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="nav nav-pills ms-auto me-3">
+                    <li class="nav-item"><a class="nav-link active text-white" id="nav-inicio" onclick="irA('inicio')">Inicio</a></li>
+                    <li class="nav-item"><a class="nav-link text-white" id="nav-tienda" onclick="irA('tienda')">Tienda</a></li>
+                    <li class="nav-item"><a class="nav-link text-white d-none" id="nav-perfil" onclick="irA('perfil')">Perfil</a></li>
+                    <li class="nav-item"><a class="nav-link text-white d-none" id="nav-admin" onclick="irA('admin')">Gestión Stock</a></li>
+                </ul>
+                <button class="btn btn-primary position-relative" onclick="verCarrito()">
+                    🛒 Carrito
+                    <span id="cartCount" class="badge bg-danger">0</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <div id="vista-inicio" class="container mt-4">
+        <h3 class="fw-bold mb-3">🔥 Novedades y Ofertas</h3>
+        <div id="digiCarousel" class="carousel slide shadow-sm rounded overflow-hidden" data-bs-ride="carousel">
+            <div class="carousel-inner" id="carouselItems">
+            </div>
+            <button class="carousel-control-prev" type="button" data-bs-target="#digiCarousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon"></span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#digiCarousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon"></span>
+            </button>
+        </div>
+    </div>
+
+    <div id="vista-tienda" class="container mt-5 d-none">
+        <div class="row g-2 mb-4">
+            <div class="col-md-8">
+                <input type="text" id="buscador" class="form-control form-control-lg shadow-sm"
+                    placeholder="🔍 Busca tu Digimon..." onkeyup="filtrarTienda()">
+            </div>
+            <div class="col-md-4">
+                <select id="filtroCategoria" class="form-select form-select-lg shadow-sm" onchange="filtrarTienda()">
+                    <option value="todos">Todas las Etapas & Elementos</option>
+                    <option value="novato">Novato</option>
+                    <option value="campeon">Campeón</option>
+                    <option value="mega">Mega</option>
+                    <option value="cartas">Cartas Modificadoras</option>
+                    <option value="espiritus">Espíritus</option>
+                    <option value="evolucion">Digi-Egg / Evolución</option>
+                </select>
+            </div>
+        </div>
+
+        <div id="loader" class="loader"></div>
+        <div id="tienda" class="row g-4"></div>
+
+        <hr class="my-5">
+        <div class="card p-4 shadow-sm mb-5">
+            <h5 class="fw-bold">Comunidad Tamer</h5>
+            <div id="listaComentarios" class="mb-3" style="max-height: 300px; overflow-y: auto;">
+                <p class="text-muted small">No hay comentarios aún.</p>
+            </div>
+
+            <div class="row g-2">
+                <div class="col-md-3">
+                    <input type="text" id="inputNombreTamer" class="form-control" placeholder="Tu Nombre">
+                </div>
+                <div class="col-md-9">
+                    <div class="input-group">
+                        <input type="text" id="inputComentario" class="form-control"
+                            placeholder="Escribe tu opinión...">
+                        <button class="btn btn-info text-white" onclick="enviarComentario()">Enviar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="vista-admin" class="container mt-5 d-none">
+        <div class="card shadow-sm p-4 mb-5">
+            <h4 class="fw-bold text-danger">Panel de Control de Inventario</h4>
+            <table class="table align-middle">
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th>Precio</th>
+                        <th>Stock Actual</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaStock"></tbody>
+            </table>
+            <div class="card shadow-sm p-4 mb-4 border-primary">
+                <h5 class="fw-bold text-primary">📦 Agregar Nuevo Digimon</h5>
+                <form id="form-nuevo-producto" onsubmit="crearProducto(event)" class="row g-2">
+                    <div class="col-md-3">
+                        <input type="text" id="add-name" name="name" class="form-control" placeholder="Nombre" required>
+                    </div>
+                    <div class="col-md-2">
+                        <input type="number" id="add-price" name="price" class="form-control" placeholder="Precio"
+                            required>
+                    </div>
+                    <div class="col-md-2">
+                        <input type="number" id="add-stock" name="stock" class="form-control" placeholder="Stock"
+                            required min="0">
+                    </div>
+                    <div class="col-md-2">
+                        <select id="add-category" name="category" class="form-select">
+                            <option value="Novato">Novato</option>
+                            <option value="Campeón">Campeón</option>
+                            <option value="Mega">Mega</option>
+                            <option value="cartas">Cartas Modificadoras</option>
+                            <option value="espiritus">Espíritus</option>
+                            <option value="evolucion">Digi-Egg / Evolución</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <input type="file" id="add-file" name="image" class="form-control" accept="image/*">
+                    </div>
+                    <div class="col-12">
+                        <textarea id="add-description" name="description" class="form-control mb-2" placeholder="Descripción del Digimon..." rows="2"></textarea>
+                        <button type="submit" class="btn btn-primary w-100">Guardar en Base de Datos</button>
+                    </div>
+                </form>
+            </div>
+            <div class="card bg-dark border-warning mb-4">
+                <div class="card-header text-warning fw-bold">⚡ GESTIÓN DE OFERTAS FLASH</div>
+                <div class="card-body">
+                    <form id="form-descuento" class="row g-2" onsubmit="aplicarDescuento(event)">
+                        <div class="col-md-3">
+                            <select id="desc-product-id" class="form-select bg-secondary text-white border-0" required>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <input type="number" id="desc-porcentaje" class="form-control" placeholder="% Desc" min="0"
+                                max="100" required>
+                        </div>
+                        <div class="col-md-3">
+                            <input type="text" id="desc-ticket" class="form-control" placeholder="Frase" required>
+                        </div>
+                        <div class="col-md-2">
+                            <input type="number" id="desc-duracion" class="form-control" placeholder="Segs (0=Fijo)"
+                                min="0">
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-warning w-100">Activar ⚡</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="card shadow-sm p-4">
+            <h2 class="text-white bg-dark p-2 rounded h5">📊 Historial de Ventas (Tamer Ledger)</h2>
+            <div class="table-responsive bg-white">
+                <table class="table table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>ID Venta</th>
+                            <th>Tamer</th>
+                            <th>Fecha</th>
+                            <th>Items</th>
+                            <th>Total Pagado</th>
+                        </tr>
+                    </thead>
+                    <tbody id="salesBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card shadow-sm p-4 mt-5">
+            <h2 class="text-white bg-dark p-2 rounded h5 mb-3">👥 Gestión de Tamers (Usuarios)</h2>
+            <div class="table-responsive bg-white">
+                <table class="table table-hover align-middle">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>Rol</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalDetalleVenta" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-dark text-white border-info">
+                    <h5 class="modal-title text-info"><i class="bi bi-search"></i> Detalle de la Venta</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body bg-dark text-white" id="detalleVentaContenido">
+                    <!-- Los items de la venta se inyectarán aquí -->
+                </div>
+                <div class="modal-footer bg-dark border-info">
+                    <button class="btn btn-outline-info" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="cartModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">🛒 Tu Carrito</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="cartBody"></div>
+                <div class="modal-footer d-flex justify-content-between">
+                    <h5 class="fw-bold">Total: <span id="totalCart">$0</span></h5>
+                    <div>
+                        <button class="btn btn-danger" onclick="vaciarCarrito()">Vaciar</button>
+                        <button class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                        <button class="btn btn-success" id="btnProcesarCompra" onclick="procesarCompra()">Finalizar
+                            Compra</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="vista-perfil" class="container mt-5 d-none">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card p-4 shadow-sm bg-dark text-white border-info mb-4">
+                    <h5 class="fw-bold text-info">Mi Perfil Tamer</h5>
+                    <hr class="bg-info">
+                    <div class="mb-3">
+                        <label class="form-label small">Cambiar Contraseña</label>
+                        <input type="password" id="new-pass" class="form-control mb-2" placeholder="Nueva Password">
+                        <button class="btn btn-info w-100 mb-2" onclick="cambiarPassword()">Actualizar</button>
+                    </div>
+                    <div id="admin-profile-section" class="d-none border-top pt-3">
+                        <label class="form-label small text-warning">Opciones de Administrador</label>
+                        <button class="btn btn-outline-warning w-100 fw-bold" onclick="irA('admin')">Gestión de Stock</button>
+                    </div>
+                    <hr class="bg-info">
+                    <button class="btn btn-outline-danger w-100 btn-sm" onclick="cerrarSesion()">Cerrar Sesión</button>
+                </div>
+            </div>
+            <div class="col-md-8">
+                <div class="card p-4 shadow-sm bg-white mb-4">
+                    <h5 class="fw-bold">Mi Historial de Pedidos</h5>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Orden</th>
+                                    <th>Fecha</th>
+                                    <th>Cant</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody id="mySalesBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="vista-terminos" class="container mt-5 d-none">
+        <div class="card p-5 shadow-sm">
+            <h2 class="fw-bold text-info mb-4">Términos de Servicio</h2>
+            <p class="lead">Los Términos del Servicio (o de uso) son un contrato legal vinculante entre el proveedor de un servicio y el usuario, estableciendo las reglas, derechos y responsabilidades para utilizar una plataforma o producto.</p>
+            <p>Aceptarlos es obligatorio para acceder al servicio y suelen cubrir:</p>
+            <ul>
+                <li>Propiedad intelectual</li>
+                <li>Normas de conducta</li>
+                <li>Limitaciones de responsabilidad</li>
+                <li>Políticas de privacidad</li>
+            </ul>
+            <button class="btn btn-secondary mt-3" onclick="irA('inicio')">Volver al Inicio</button>
+        </div>
+    </div>
+
+    <div id="vista-admin" class="container mt-5 d-none">
+        <div class="row mb-4 text-center">
+            <div class="col-md-6 mb-2">
+                <div class="card bg-success text-white p-3 shadow-sm">
+                    <h6 class="small mb-0">TOTAL RECAUDADO</h6>
+                    <h3 class="fw-bold" id="metric-total">$0</h3>
+                </div>
+            </div>
+            <div class="col-md-6 mb-2">
+                <div class="card bg-info text-white p-3 shadow-sm">
+                    <h6 class="small mb-0">UNIDADES VENDIDAS</h6>
+                    <h3 class="fw-bold" id="metric-units">0</h3>
+                </div>
+            </div>
+        </div>
+        <!-- ... resto de vista admin ... -->
+    </div>
+
+    <script>
+        // --- 1. CONFIGURACIÓN E INICIALIZACIÓN ---
+        const API = 'http://localhost:3000/api';
+        let prods = []; // Global para usar en filtros y selects
+
+        // --- INTERCEPTOR GLOBAL DE FETCH ---
+        const originalFetch = window.fetch;
+        window.fetch = async (...args) => {
+            const response = await originalFetch(...args);
+            if (response.status === 401) {
+                showToast("Tu sesión ha expirado, Tamer. Por favor, ingresa de nuevo.");
+                cerrarSesion();
+            }
+            return response;
+        };
+
+        // --- SSE: ACTUALIZACIONES EN TIEMPO REAL ---
+        const evSource = new EventSource(`${API}/live`);
+        evSource.onmessage = (e) => {
+            const res = JSON.parse(e.data);
+            if (res.type === 'DISCOUNT_START') {
+                showToast(`⚡ ¡OFERTA RELÁMPAGO! ${res.name} a solo ${res.discount}% menos.`);
+                cargarTienda();
+                cargarCarrusel();
+            }
+            if (res.type === 'DISCOUNT_END') {
+                showToast(`La oferta de ${res.name} ha terminado.`);
+                cargarTienda();
+                cargarCarrusel();
+            }
+            if (res.type === 'STOCK_UPDATE') {
+                actualizarBadge();
+                cargarTienda();
+                showToast("🔄 Inventario actualizado en el Digimundo.");
+                const adminView = document.getElementById('vista-admin');
+                if (adminView && !adminView.classList.contains('d-none')) {
+                    cargarVentas();
+                    cargarGestionStock();
+                    cargarUsuarios();
+                }
+            }
+        };
+
+        function clp(value) {
+            return '$' + new Intl.NumberFormat('es-CL').format(value);
+        }
+
+        window.onload = async () => {
+            console.log("🎮 Digi-Market v2.0 - Sistema Vinculado");
+
+            // Carga inicial obligatoria
+            await cargarTienda();
+            cargarComentarios();
+            irA('inicio');
+
+            const user = JSON.parse(localStorage.getItem('user'));
+            const token = localStorage.getItem('token');
+            const authSection = document.getElementById('auth-section');
+
+            if (user && token) {
+                authSection.innerHTML = `
+                <div class="d-flex align-items-center bg-dark p-2 rounded border border-info shadow-sm">
+                    <span class="text-info me-3 small fw-bold">TAMER: ${user.username.toUpperCase()}</span>
+                    <button class="btn btn-xs btn-outline-danger py-0" style="font-size: 10px;" onclick="cerrarSesion()">LOGOUT</button>
+                </div>`;
+
+                // Mostrar enlaces protegidos
+                const btnAdmin = document.getElementById('nav-admin');
+                const btnPerfil = document.getElementById('nav-perfil');
+                
+                if (btnPerfil) btnPerfil.classList.remove('d-none');
+                
+                if (user.role === 'admin') {
+                    if (btnAdmin) {
+                        btnAdmin.classList.remove('d-none');
+                        btnAdmin.classList.add('btn-glow');
+                    }
+                    const adminProfile = document.getElementById('admin-profile-section');
+                    if (adminProfile) adminProfile.classList.remove('d-none');
+                    
+                    cargarVentas();
+                    cargarGestionStock();
+                    cargarUsuarios();
+                } else {
+                    if (btnAdmin) btnAdmin.remove();
+                }
+                actualizarBadge();
+            }
+
+            // --- CONEXIÓN DE FORMULARIOS ---
+            const formLogin = document.getElementById('form-login');
+            if (formLogin) formLogin.onsubmit = (e) => { e.preventDefault(); ejecutarLogin(); };
+
+            const formNuevo = document.getElementById('form-nuevo-producto');
+            if (formNuevo) formNuevo.onsubmit = crearProducto;
+
+            const formEditar = document.getElementById('form-edit-producto');
+            if (formEditar) formEditar.onsubmit = guardarCambiosCompletos;
+
+            const formDesc = document.getElementById('form-descuento');
+            if (formDesc) formDesc.onsubmit = aplicarDescuento;
+
+            // Filtros reactivos
+            if (document.getElementById('buscador')) document.getElementById('buscador').oninput = filtrarTienda;
+            if (document.getElementById('filtroCategoria')) document.getElementById('filtroCategoria').onchange = filtrarTienda;
+        };
+
+        // --- MEJORA EN CARGAR TIENDA (Para alimentar a 'prods') ---
+        async function cargarTienda() {
+            const loader = document.getElementById('loader');
+            if (loader) loader.style.display = 'block';
+            try {
+                const res = await fetch(`${API}/products`);
+                prods = await res.json();
+                renderizarProductos(prods);
+                poblarSelectDescuentos();
+                cargarCarrusel();
+            } catch (e) { 
+                console.error("Error tienda:", e); 
+            } finally {
+                if (loader) loader.style.display = 'none';
+            }
+        }
+
+        function getCardClass(categoria) {
+            if (!categoria) return '';
+            const cat = categoria.toLowerCase();
+            if (cat.includes('novato')) return 'card-novato';
+            if (cat.includes('campe')) return 'card-campeon';
+            if (cat.includes('mega')) return 'card-mega';
+            return '';
+        }
+
+        function renderizarProductos(lista) {
+            const contenedor = document.getElementById('tienda');
+            if (!contenedor) return;
+
+            if (lista.length === 0) {
+                contenedor.innerHTML = `<div class="col-12 text-center text-muted fs-4 mt-5"><p>No se encontraron Digimons que coincidan con tu búsqueda, Tamer.</p></div>`;
+                return;
+            }
+
+            contenedor.innerHTML = lista.map(p => {
+                const cardClass = getCardClass(p.category);
+                const isDiscounted = p.discount > 0;
+                const badgeExtra = isDiscounted ? `<div class="position-absolute top-0 start-50 translate-middle badge rounded-pill bg-warning text-dark border border-dark" style="z-index: 10;">
+                    ⚡ ${p.discount_phrase} -${p.discount}%
+                </div>` : '';
+
+                const precioFinal = isDiscounted ?
+                    `<span class="text-decoration-line-through text-muted small">${clp(p.price)}</span> <span class="text-success fw-bold">${clp(Math.round(p.price * (1 - p.discount / 100)))}</span>` :
+                    `${clp(p.price)}`;
+
+                return `
+                <div class="col-12 col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100 shadow-sm position-relative ${cardClass}">
+                        ${badgeExtra}
+                        <div class="p-3 text-center bg-white rounded-top">
+                            <img src="${p.image_url}" class="card-img-top product-img" alt="${p.name}" 
+                                 onerror="this.src='https://via.placeholder.com/300?text=Imagen+No+Disponible'">
+                        </div>
+                        <div class="card-body bg-light d-flex flex-column">
+                            <h5 class="card-title text-info fw-bold text-center">${p.name}</h5>
+                            <p class="card-text text-center small text-muted px-2">${p.description || 'Sin descripción.'}</p>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="badge bg-secondary">${p.category}</span>
+                                <span class="badge ${p.stock > 0 ? 'bg-success' : 'bg-danger'}">Stock: ${p.stock}</span>
+                            </div>
+                            <p class="card-text text-center fs-5 fw-bold mb-3">${precioFinal}</p>
+                            <div class="mt-auto row g-1">
+                                <div class="col-4">
+                                    <input type="number" id="cant-${p.id}" class="form-control text-center" value="${p.stock === 0 ? 0 : 1}" min="1" max="${p.stock}" ${p.stock === 0 ? 'disabled' : ''}>
+                                </div>
+                                <div class="col-8">
+                                    <button class="btn ${p.stock === 0 ? 'btn-secondary' : 'btn-primary'} w-100 fw-bold" onclick="prepararCarrito(${p.id})" ${p.stock === 0 ? 'disabled' : ''}>
+                                        🛒 ${p.stock === 0 ? 'Agotado' : 'Añadir'}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function irA(seccion) {
+            const vistas = ['vista-inicio', 'vista-tienda', 'vista-admin', 'vista-perfil', 'vista-terminos'];
+
+            if (seccion === 'admin') {
+                const userStr = localStorage.getItem('user');
+                const user = userStr ? JSON.parse(userStr) : null;
+                if (!user || user.role !== 'admin') {
+                    showToast("Acceso Denegado: Rango Admin Requerido");
+                    irA('inicio');
+                    return;
+                }
+            }
+            
+            if (seccion === 'perfil') {
+                cargarMySales();
+            }
+
+            vistas.forEach(v => {
+                const el = document.getElementById(v);
+                if (el) {
+                    if (v === `vista-${seccion}`) {
+                        el.classList.remove('d-none');
+                    } else {
+                        el.classList.add('d-none');
+                    }
+                }
+                
+                // Actualizar estado activo en Navbar
+                const linkId = `nav-${v.replace('vista-', '')}`;
+                const navLink = document.getElementById(linkId);
+                if (navLink) {
+                    if (v === `vista-${seccion}`) {
+                        navLink.classList.add('active');
+                    } else {
+                        navLink.classList.remove('active');
+                    }
+                }
+            });
+
+            if (seccion === 'tienda') cargarTienda();
+            if (seccion === 'admin') { 
+                cargarGestionStock(); 
+                cargarVentas(); 
+                cargarUsuarios();
+            }
+            
+            window.scrollTo(0, 0);
+        }
+
+        function filtrarTienda() {
+            const rawSearch = document.getElementById('buscador').value;
+            const search = rawSearch.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+            const cat = document.getElementById('filtroCategoria').value.toLowerCase();
+
+            const filtrados = prods.filter(p => {
+                const normName = p.name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+                const matchSearch = normName.includes(search);
+                const normCatProd = (p.category || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+
+                let matchCat = false;
+                if (cat === 'todos') {
+                    matchCat = true;
+                } else if (cat === 'cartas') {
+                    matchCat = normCatProd.includes('carta');
+                } else if (cat === 'espiritus') {
+                    matchCat = normCatProd.includes('espiritu');
+                } else if (cat === 'evolucion') {
+                    matchCat = normCatProd.includes('digi-egg') || normCatProd.includes('evoluc');
+                } else {
+                    matchCat = normCatProd.includes(cat);
+                }
+
+                return matchSearch && matchCat;
+            });
+
+            renderizarProductos(filtrados);
+            if (rawSearch || cat !== 'todos') {
+                showToast(`Se han filtrado ${filtrados.length} resultados.`);
+            }
+        }
+
+        async function cargarCarrusel() {
+            try {
+                const res = await fetch(`${API}/products`);
+                const data = await res.json();
+
+                // Identificar productos para el carrusel
+                const conDescuento = data.filter(p => p.discount > 0).map(p => ({ ...p, carouselBadge: 'OFERTA' }));
+                const ultimos = data.slice(-5).map(p => ({ ...p, carouselBadge: 'NUEVO' }));
+
+                // Combinar sin duplicados, priorizando descuento
+                const combinadosMap = new Map();
+                ultimos.reverse().forEach(p => combinadosMap.set(p.id, p));
+                conDescuento.forEach(p => combinadosMap.set(p.id, p));
+                
+                let destacados = Array.from(combinadosMap.values());
+                if (destacados.length === 0) destacados = data.slice(-3);
+
+                const inner = document.getElementById('carouselItems');
+                if (inner && destacados.length > 0) {
+                    inner.innerHTML = destacados.map((p, idx) => {
+                        const isOffer = p.carouselBadge === 'OFERTA';
+                        const badgeHTML = isOffer ? 
+                            `<span class="badge bg-warning text-dark position-absolute top-0 start-0 m-3 shadow">⚡ ${p.discount_phrase || 'OFERTA'} -${p.discount}%</span>` :
+                            `<span class="badge badge-new position-absolute top-0 start-0 m-3 shadow">🆕 ¡NUEVO INGRESO!</span>`;
+                        
+                        const precioFinalValue = isOffer ? Math.round(p.price * (1 - p.discount / 100)) : p.price;
+                        const priceHTML = isOffer ? 
+                            `<span class="text-decoration-line-through text-muted fs-6 d-block">${clp(p.price)}</span>
+                             <span class="fs-4 text-warning fw-bold">${clp(precioFinalValue)}</span>` : 
+                            `<span class="fs-4 text-warning fw-bold">${clp(p.price)}</span>`;
+
+                        return `
+                        <div class="carousel-item ${idx === 0 ? 'active' : ''}">
+                            <div class="d-flex align-items-center justify-content-center bg-dark text-white p-5 rounded position-relative" style="min-height:350px">
+                                ${badgeHTML}
+                                <img src="${p.image_url}" class="me-5" style="max-height:220px; object-fit: contain;" 
+                                     onerror="this.src='https://via.placeholder.com/300?text=Digimon'">
+                                <div class="text-start">
+                                    <h2 class="text-info fw-bold">${p.name}</h2>
+                                    <div class="mb-3">${priceHTML}</div>
+                                    <button class="btn btn-outline-info btn-sm px-4" onclick="irA('tienda')">Ver en Tienda</button>
+                                </div>
+                            </div>
+                        </div>`;
+                    }).join('');
+                }
+            } catch (e) { console.error("Error carrusel:", e); }
+        }
+
+        function cerrarSesion() {
+            // 1. Borramos el token y los datos del usuario
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+
+            // 2. Limpiamos el badge del carrito visualmente
+            const badge = document.getElementById('cartCount');
+            if (badge) badge.classList.add('d-none');
+
+            // 3. Avisamos y redirigimos
+            showToast("Sesión cerrada. ¡Vuelve pronto, Tamer!");
+            setTimeout(() => {
+                irA('inicio'); // O la función que uses para volver a la home
+                location.reload(); // Recarga para limpiar cualquier estado de Admin
+            }, 1000);
+        }
+        function showToast(m) {
+            const t = document.getElementById('toast');
+            if (t) {
+                t.innerText = m;
+                t.classList.remove('d-none');
+                setTimeout(() => t.classList.add('d-none'), 2500);
+            }
+        }
+
+        // --- 3. USUARIOS Y LOGIN ---
+
+        async function ejecutarLogin(autoEmail = null, autoPassword = null) { // <-- Asegúrate de que se llame exactamente así
+            const email = autoEmail || document.getElementById('login-email').value;
+            const password = autoPassword || document.getElementById('login-pass').value;
+
+            if (!email || !password) return showToast("❌ Completa los datos, Tamer.");
+
+            try {
+                const res = await fetch(`${API}/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('user', JSON.stringify(data.user));
+
+                    showToast(`¡Bienvenido al Digi-Market, ${data.user.username}!`);
+
+                    // Cerramos el modal de login si usas uno
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('authModal'));
+                    if (modal) modal.hide();
+
+                    setTimeout(() => location.reload(), 1500); // Recarga tras mostrar el mensaje fluido
+                } else {
+                    showToast("❌ Error: " + data.error);
+                }
+            } catch (err) {
+                console.error("Error en login:", err);
+            }
+        }
+
+        async function ejecutarRegistro() {
+            const username = document.getElementById('reg-user').value;
+            const email = document.getElementById('reg-email').value;
+            const password = document.getElementById('reg-pass').value;
+
+            if (!username || !email || !password) return showToast("❌ Completa todos los datos para crear tu cuenta.");
+
+            try {
+                const res = await fetch(`${API}/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, email, password })
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    showToast(`¡Bienvenido al Digimundo, ${username}!`);
+                    // Llama a login automáticamente enviando las credenciales recién creadas
+                    await ejecutarLogin(email, password);
+                } else {
+                    showToast("❌ Error registro: " + data.error);
+                }
+            } catch (e) {
+                console.error("Error en registro:", e);
+                showToast("❌ Hubo un error inesperado al registrarte.");
+            }
+        }
+
+        // --- 4. CARRITO Y COMPRA ---
+
+        async function prepararCarrito(productId) {
+            const input = document.getElementById(`cant-${productId}`);
+            const cantidad = parseInt(input.value) || 1;
+            await alCarrito(productId, cantidad);
+        }
+
+        async function alCarrito(pid, qty) {
+            const token = localStorage.getItem('token');
+            if (!token) return showToast("❌ Inicia sesión para agregar productos.");
+            const res = await fetch(`${API}/cart`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({ product_id: pid, quantity: qty })
+            });
+            if (res.ok) {
+                showToast("✅ Digimon vinculado al carrito");
+                actualizarBadge();
+            }
+        }
+
+        async function actualizarBadge() {
+            const token = localStorage.getItem('token');
+            if (!token) return;
+            try {
+                const res = await fetch(`${API}/cart`, { headers: { 'Authorization': `Bearer ${token}` } });
+                const data = await res.json();
+                const badge = document.getElementById('cartCount');
+                if (badge && Array.isArray(data)) {
+                    badge.innerText = data.length;
+                    badge.classList.toggle('d-none', data.length === 0);
+                }
+            } catch (e) { console.error("Error badge:", e); }
+        }
+
+        async function verCarrito() {
+            const token = localStorage.getItem('token');
+            if (!token) return showToast("❌ Inicia sesión.");
+            const res = await fetch(`${API}/cart`, { headers: { 'Authorization': `Bearer ${token}` } });
+            const data = await res.json();
+            if (!Array.isArray(data) || data.length === 0) return showToast("🛒 El carrito está vacío.");
+            renderizarContenidoCarrito(data);
+            bootstrap.Modal.getOrCreateInstance(document.getElementById('cartModal')).show();
+        }
+
+        function renderizarContenidoCarrito(data) {
+            const body = document.getElementById('cartBody');
+            let total = 0;
+            body.innerHTML = data.map(i => {
+                total += (i.price * i.quantity);
+                return `
+        <div class="d-flex justify-content-between border-bottom pb-2 mb-2">
+            <div><b>${i.name}</b><br><small>${i.quantity} x ${clp(i.price)}</small></div>
+            <div class="text-end">
+                <b>${clp(i.price * i.quantity)}</b><br>
+                <button class="btn btn-sm text-danger p-0" onclick="quitarDelCarrito(${i.id})">✕ Eliminar</button>
+            </div>
+        </div>`;
+            }).join('');
+            document.getElementById('totalCart').innerText = `${clp(total)}`;
+        }
+
+        // ESTA ES LA QUE DABA ERROR 404 (Asegúrate de tener el app.delete en server.js)
+        async function quitarDelCarrito(id) {
+            const token = localStorage.getItem('token');
+            const res = await fetch(`${API}/cart/${id}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (res.ok) {
+                showToast("Producto eliminado");
+                actualizarBadge();
+                const res2 = await fetch(`${API}/cart`, { headers: { 'Authorization': `Bearer ${token}` } });
+                const data = await res2.json();
+                if (data.length > 0) {
+                    renderizarContenidoCarrito(data);
+                } else {
+                    bootstrap.Modal.getInstance(document.getElementById('cartModal')).hide();
+                    cargarTienda();
+                }
+            }
+        }
+
+        // ESTA ES LA QUE FALTABA (La que llama el botón de "Comprar")
+        async function procesarCompra() {
+            const token = localStorage.getItem('token');
+            if (!token) return showToast("❌ Sesión expirada.");
+
+            const btn = document.getElementById('btnProcesarCompra');
+            if (btn) { btn.disabled = true; btn.innerText = "Procesando..."; }
+
+            try {
+                const res = await fetch(`${API}/checkout`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (res.ok) {
+                    const dataRes = await res.json();
+                    showToast(`¡Compra #${dataRes.saleId} exitosa! Revisa tu historial en el panel admin.`);
+                    actualizarBadge();
+                    bootstrap.Modal.getInstance(document.getElementById('cartModal')).hide();
+                    cargarTienda();
+                    if (document.getElementById('vista-admin') && !document.getElementById('vista-admin').classList.contains('d-none')) {
+                        cargarVentas();
+                    }
+                } else {
+                    const error = await res.json();
+                    showToast("❌ Error: " + error.error);
+                }
+            } catch (e) {
+                console.error("Error en compra:", e);
+            } finally {
+                if (btn) { btn.disabled = false; btn.innerText = "Finalizar Compra"; }
+            }
+        }
+
+        async function vaciarCarrito() {
+            if (!confirm("¿Vaciar TODO el carrito? Esta acción no se puede deshacer.")) return;
+            const token = localStorage.getItem('token');
+            if (!token) return;
+            try {
+                const res = await fetch(`${API}/cart`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
+                if (res.ok) {
+                    showToast("🛒 Carrito vaciado perfectamente.");
+                    actualizarBadge();
+                    bootstrap.Modal.getInstance(document.getElementById('cartModal')).hide();
+                    cargarTienda();
+                }
+            } catch (err) {
+                console.error("Error al vaciar carrito:", err);
+            }
+        }
+
+        // --- 5. ADMINISTRACIÓN (TODO JUNTO) ---
+        async function cargarGestionStock() {
+            const res = await fetch(`${API}/products`);
+            const data = await res.json();
+            const tabla = document.getElementById('tablaStock');
+            if (tabla) {
+                tabla.innerHTML = data.map(p => `
+            <tr>
+                <td><b>${p.name}</b></td>
+                <td><span class="badge ${p.stock < 3 ? 'bg-danger' : 'bg-dark'}">${p.stock}</span></td>
+                <td>${clp(p.price)}</td>
+                <td>
+                    <button class="btn btn-sm btn-info" onclick="abrirModalEditar(${p.id})">EDITAR</button>
+                    <button class="btn btn-sm btn-danger" onclick="eliminarProducto(${p.id})">BORRAR</button>
+                </td>
+            </tr>`).join('');
+            }
+        }
+
+        function abrirModalEditar(id) {
+            const p = prods.find(x => x.id === id);
+            if (!p) return showToast("❌ Producto no encontrado");
+
+            document.getElementById('edit-id').value = p.id;
+            document.getElementById('edit-name').value = p.name;
+            document.getElementById('edit-description').value = p.description || '';
+            document.getElementById('edit-price').value = p.price;
+            document.getElementById('edit-stock').value = p.stock;
+            document.getElementById('edit-category').value = p.category;
+
+            // Limpiar input de archivo para evitar reemplazos accidentales
+            const inputImg = document.querySelector('#form-edit-producto input[type="file"]');
+            if (inputImg) inputImg.value = '';
+
+            // Mostrar modal
+            const editModal = new bootstrap.Modal(document.getElementById('editModal'));
+            editModal.show();
+        }
+
+        async function cargarVentas() {
+            const res = await fetch(`${API}/sales`, { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } });
+            const data = await res.json();
+            const body = document.getElementById('salesBody');
+            if (body && Array.isArray(data)) {
+                let totalRecaudado = 0;
+                let unidadesVendidas = 0;
+                
+                body.innerHTML = data.map(s => {
+                    totalRecaudado += s.total_amount;
+                    unidadesVendidas += s.items_count;
+                    return `
+                    <tr class="small" onclick="verDetalleVenta(${s.id})" style="cursor:pointer">
+                        <td>#${s.id} 🔍</td>
+                        <td><span class="badge bg-secondary">${s.tamer_name || 'Desconocido'}</span></td>
+                        <td>${new Date(s.created_at).toLocaleDateString()}</td>
+                        <td>${s.items_count}</td>
+                        <td class="fw-bold text-success">${clp(s.total_amount)}</td>
+                    </tr>`;
+                }).join('');
+                
+                // Actualizar métricas
+                const metricTotal = document.getElementById('metric-total');
+                const metricUnits = document.getElementById('metric-units');
+                if (metricTotal) metricTotal.innerText = clp(totalRecaudado);
+                if (metricUnits) metricUnits.innerText = unidadesVendidas;
+            }
+        }
+
+        async function borrarHistorialVentas() {
+            if (!confirm("Estas a punto de BORRAR TODO el historial de ventas. ¿Continuar, Tamer Administrator?")) return;
+            const res = await fetch(`${API}/sales`, { 
+                method: 'DELETE', 
+                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } 
+            });
+            if (res.ok) {
+                showToast("Historial Limpiado.");
+                cargarVentas();
+            }
+        }
+
+        async function cargarMySales() {
+            const res = await fetch(`${API}/my-sales`, { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } });
+            const data = await res.json();
+            const body = document.getElementById('mySalesBody');
+            if (body && Array.isArray(data)) {
+                body.innerHTML = data.map(s => `
+                <tr class="small">
+                    <td>#${s.id}</td>
+                    <td>${new Date(s.created_at).toLocaleDateString()}</td>
+                    <td>${s.items_count}</td>
+                    <td class="fw-bold text-success">${clp(s.total_amount)}</td>
+                </tr>`).join('');
+                if (data.length === 0) body.innerHTML = '<tr><td colspan="4" class="text-center text-muted">Aún no has realizado compras.</td></tr>';
+            }
+        }
+
+        async function cambiarPassword() {
+            const pass = document.getElementById('new-pass').value;
+            if (!pass || pass.length < 4) return showToast("❌ Password demasiado corta.");
+            const res = await fetch(`${API}/users/password`, {
+                method: 'PUT',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('token')}` 
+                },
+                body: JSON.stringify({ password: pass })
+            });
+            if (res.ok) {
+                showToast("Contraseña actualizada con éxito.");
+                document.getElementById('new-pass').value = '';
+            }
+        }
+
+        async function cargarUsuarios() {
+            const res = await fetch(`${API}/users`, { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } });
+            const data = await res.json();
+            const body = document.getElementById('usersBody');
+            if (body && Array.isArray(data)) {
+                body.innerHTML = data.map(u => `
+                <tr class="small">
+                    <td>${u.id}</td>
+                    <td><b>${u.username}</b></td>
+                    <td>${u.email}</td>
+                    <td><span class="badge ${u.role === 'admin' ? 'bg-danger' : 'bg-info'}">${u.role.toUpperCase()}</span></td>
+                    <td>
+                        <button class="btn btn-xs btn-outline-warning py-0" onclick="cambiarRol(${u.id}, '${u.role}')">ROLES</button>
+                        <button class="btn btn-xs btn-outline-danger py-0" onclick="eliminarUsuario(${u.id})">BORRAR</button>
+                    </td>
+                </tr>`).join('');
+            }
+        }
+
+        async function cambiarRol(id, currentRole) {
+            const newRole = currentRole === 'admin' ? 'tamer' : 'admin';
+            if (!confirm(`¿Cambiar el rol de este tamer a ${newRole.toUpperCase()}?`)) return;
+            const res = await fetch(`${API}/users/${id}/role`, {
+                method: 'PATCH',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('token')}` 
+                },
+                body: JSON.stringify({ role: newRole })
+            });
+            if (res.ok) {
+                showToast("Rol actualizado con éxito");
+                cargarUsuarios();
+            }
+        }
+
+        async function eliminarUsuario(id) {
+            if (!confirm("¿Seguro que quieres ELIMINAR esta cuenta de tamer? Esta acción es irreversible.")) return;
+            const res = await fetch(`${API}/users/${id}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+            });
+            if (res.ok) {
+                showToast("Cuenta eliminada permanentemente");
+                cargarUsuarios();
+            }
+        }
+
+        async function verDetalleVenta(ventaId) {
+            try {
+                const token = localStorage.getItem('token');
+                const res = await fetch(`${API}/sales/${ventaId}`, { headers: { 'Authorization': `Bearer ${token}` } });
+                const detalle = await res.json();
+
+                if (!res.ok || !detalle.items) throw new Error(detalle.error || "Datos incompletos");
+
+                let html = `<div class="list-group">`;
+                detalle.items.forEach(item => {
+                    html += `<div class="list-group-item bg-dark text-white border-secondary d-flex justify-content-between">
+                    <span>${item.name} (x${item.quantity})</span><span class="text-success fw-bold">${clp(item.subtotal)}</span></div>`;
+                });
+                document.getElementById('detalleVentaContenido').innerHTML = html + `</div>`;
+                new bootstrap.Modal(document.getElementById('modalDetalleVenta')).show();
+            } catch (e) {
+                showToast("❌ Error al mostrar detalle: " + e.message);
+            }
+        }
+
+        function poblarSelectDescuentos() {
+            const select = document.getElementById('desc-product-id');
+            if (select) select.innerHTML = prods.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+        }
+
+        async function crearProducto(e) {
+            e.preventDefault();
+            const fd = new FormData(e.target);
+            const res = await fetch(`${API}/products`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
+                body: fd
+            });
+            if (res.ok) {
+                showToast("👾 Registrado"); e.target.reset(); cargarGestionStock(); cargarTienda();
+            } else {
+                const data = await res.json();
+                showToast("❌ Error: " + data.error);
+            }
+        }
+
+        async function eliminarProducto(id) {
+            if (!confirm("¿Seguro que quieres borrar este Digimon del inventario permanentemente?")) return;
+            const res = await fetch(`${API}/products/${id}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+            });
+            if (res.ok) { showToast("🗑️ Eliminado"); cargarGestionStock(); cargarTienda(); }
+        }
+
+        async function guardarCambiosCompletos(e) {
+            e.preventDefault();
+            const id = document.getElementById('edit-id').value;
+            const fd = new FormData(e.target);
+            const res = await fetch(`${API}/products/${id}`, {
+                method: 'PUT',
+                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
+                body: fd
+            });
+            if (res.ok) {
+                bootstrap.Modal.getInstance(document.getElementById('editModal')).hide();
+                showToast("💾 Guardado"); cargarGestionStock(); cargarTienda();
+            }
+        }
+        // --- FUNCIÓN PARA ACTIVAR EL RAYITO ⚡ ---
+        async function aplicarDescuento(e) {
+            e.preventDefault();
+            const productId = document.getElementById('desc-product-id').value;
+            const porcentaje = document.getElementById('desc-porcentaje').value;
+            const frase = document.getElementById('desc-ticket').value;
+            const duracionElem = document.getElementById('desc-duracion');
+            const token = localStorage.getItem('token');
+
+            try {
+                const res = await fetch(`${API}/products/${productId}/discount`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        discount: parseInt(porcentaje),
+                        discount_phrase: frase,
+                        duration: duracionElem ? (parseInt(duracionElem.value) || 0) : 0
+                    })
+                });
+
+                if (res.ok) {
+                    showToast(`¡Comando de Oferta Enviado!`);
+                    e.target.reset();
+                    // cargarTienda() y cargarCarrusel() se manejarán globalmente vía SSE
+                } else {
+                    const err = await res.json();
+                    showToast("❌ Error al aplicar descuento: " + err.error);
+                }
+            } catch (error) {
+                console.error("Error en la conexión de descuentos:", error);
+            }
+        }
+
+        // --- FUNCIÓN EXTRA: CARGAR EL CARRUSEL NORMAL (Respaldo) ---
+        function renderizarCarruselNormal(lista) {
+            const inner = document.getElementById('carouselItems');
+            if (!inner) return;
+            inner.innerHTML = lista.map((p, idx) => `
+        <div class="carousel-item ${idx === 0 ? 'active' : ''}">
+            <div class="d-flex align-items-center justify-content-center bg-dark text-white p-5 rounded" style="min-height:350px">
+                <img src="${p.image_url}" class="me-5" style="max-height:200px; object-fit: contain;">
+                <div class="text-start">
+                    <h2 class="text-info">${p.name}</h2>
+                    <p class="fs-4 text-warning fw-bold">$${p.price}</p>
+                    <button class="btn btn-outline-light btn-sm" onclick="irA('tienda')">Ver en Tienda</button>
+                </div>
+            </div>
+        </div>`).join('');
+        }
+
+        // --- 6. SOCIAL ---
+        async function enviarComentario() {
+            let input = document.getElementById('inputComentario');
+            if (!input) input = document.getElementById('commentContent'); // Respaldo
+            const content = input ? input.value : '';
+            const token = localStorage.getItem('token');
+
+            if (!token) return showToast("❌ Debes iniciar sesión para comentar.");
+            if (!content) return showToast("⚠️ Escribe algo antes de enviar.");
+
+            try {
+                const res = await fetch(`${API}/comments`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ content }) // El servidor tomará el nombre del token
+                });
+
+                if (res.ok) {
+                    if (input) input.value = ''; // Limpia el campo
+                    showToast("Comentario enviado con éxito");
+                    cargarComentarios(); // Función para refrescar la lista
+                } else {
+                    showToast("❌ No se pudo enviar el comentario.");
+                }
+            } catch (err) {
+                console.error("Error en comentario:", err);
+            }
+        }
+
+        async function cargarComentarios() {
+            try {
+                const res = await fetch(`${API}/comments`);
+                const data = await res.json();
+                const container = document.getElementById('listaComentarios');
+
+                if (container && Array.isArray(data) && data.length > 0) {
+                    container.innerHTML = data.map(c => `
+                <div class="card mb-2 shadow-sm">
+                    <div class="card-body">
+                        <h6 class="card-subtitle mb-2 text-primary">Tamer: ${c.tamer_name}</h6>
+                        <p class="card-text">${c.content}</p>
+                        <small class="text-muted">${new Date(c.created_at).toLocaleString()}</small>
+                    </div>
+                </div>
+            `).join('');
+                }
+            } catch (err) {
+                console.error("Error cargando comentarios:", err);
+            }
+        }
+    </script>
+
+
+    <div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content bg-dark text-white border-info">
+                <div class="modal-header">
+                    <h5 class="modal-title">Actualizar Datos del Digimon</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="form-edit-producto">
+                        <input type="hidden" id="edit-id">
+
+                        <div class="mb-3">
+                            <label class="form-label small text-info">Nombre</label>
+                            <input type="text" id="edit-name" name="name"
+                                class="form-control bg-secondary text-white border-0" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small text-info">Descripción</label>
+                            <textarea id="edit-description" name="description" class="form-control bg-secondary text-white border-0" rows="3"></textarea>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label small text-info">Precio</label>
+                                <input type="number" id="edit-price" name="price"
+                                    class="form-control bg-secondary text-white border-0" min="1" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label small text-info">Stock</label>
+                                <input type="number" id="edit-stock" name="stock"
+                                    class="form-control bg-secondary text-white border-0" min="0" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small text-info">Categoría / Nivel</label>
+                            <select id="edit-category" name="category"
+                                class="form-select bg-secondary text-white border-0">
+                                <option value="Novato">Novato</option>
+                                <option value="Campeón">Campeón</option>
+                                <option value="Mega">Mega</option>
+                                <option value="cartas">Cartas Modificadoras</option>
+                                <option value="espiritus">Espíritus</option>
+                                <option value="evolucion">Digi-Egg / Evolución</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small text-info">Actualizar Imagen (Opcional)</label>
+                            <input type="file" name="image" class="form-control bg-secondary text-white border-0"
+                                accept="image/*">
+                        </div>
+                        <button type="submit" class="btn btn-info w-100 fw-bold">Guardar Cambios</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast"></div>
+    <div class="modal fade" id="authModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-dark text-white">
+                    <h5 class="modal-title">Acceso al Digimundo</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <ul class="nav nav-tabs mb-3" id="authTab" role="tablist">
+                        <li class="nav-item">
+                            <button class="nav-link active" id="login-tab" data-bs-toggle="tab"
+                                data-bs-target="#login-pane">Entrar</button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="nav-link" id="register-tab" data-bs-toggle="tab"
+                                data-bs-target="#register-pane">Registrarse</button>
+                        </li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane fade show active" id="login-pane">
+                            <input type="email" id="login-email" class="form-control mb-2" placeholder="Email">
+                            <input type="password" id="login-pass" class="form-control mb-2" placeholder="Contraseña">
+                            <button class="btn btn-primary w-100" onclick="ejecutarLogin()">Iniciar Sesión</button>
+                        </div>
+                        <div class="tab-pane fade" id="register-pane">
+                            <input type="text" id="reg-user" class="form-control mb-2" placeholder="Nombre de Tamer">
+                            <input type="email" id="reg-email" class="form-control mb-2" placeholder="Email">
+                            <input type="password" id="reg-pass" class="form-control mb-2" placeholder="Contraseña">
+                            <button class="btn btn-success w-100" onclick="ejecutarRegistro()">Crear Cuenta</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer class="bg-dark text-white pt-5 pb-3 border-top border-info mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <h5 class="text-info fw-bold mb-3">👾 DIGI-MARKET v2.0</h5>
+                    <p class="small text-muted">El principal centro de intercambio para Tamers de todo el mundo. Especialistas en transferencia de datos, espíritus digitales y coleccionables raros.</p>
+                    <div class="mt-3">
+                        <span class="badge bg-outline-info border border-info text-info">Server: Localhost</span>
+                        <span class="badge bg-outline-success border border-success text-success">Status: Online</span>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4 text-center">
+                    <h5 class="text-info fw-bold mb-3">EXPLORA EL DIGIMUNDO</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="#" onclick="irA('inicio')" class="text-decoration-none text-light hover-info">🏠 Inicio</a></li>
+                        <li class="mb-2"><a href="#" onclick="irA('tienda')" class="text-decoration-none text-light hover-info">🛒 Tienda de Items</a></li>
+                        <li class="mb-2"><a href="#" onclick="irA('terminos')" class="text-decoration-none text-light hover-info">📜 Términos de Servicio</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4 mb-4 text-md-end">
+                    <h5 class="text-info fw-bold mb-3">SOPORTE AL TAMER</h5>
+                    <p class="small mb-1"><i class="bi bi-envelope-fill text-info"></i> contacto@digimarket.cl</p>
+                    <p class="small mb-3"><i class="bi bi-geo-alt-fill text-info"></i> Nodo Central, Digimundo</p>
+                    <div class="fs-4">
+                        <a href="#" class="text-info me-3"><i class="bi bi-facebook"></i></a>
+                        <a href="#" class="text-info me-3"><i class="bi bi-instagram"></i></a>
+                        <a href="#" class="text-info"><i class="bi bi-discord"></i></a>
+                    </div>
+                </div>
+            </div>
+            <hr class="bg-info opacity-25">
+            <div class="row align-items-center">
+                <div class="col-md-6 text-center text-md-start small text-muted">
+                    &copy; 2026 Digi-Market - Santiago, Chile. Todos los derechos reservados.
+                </div>
+                <div class="col-md-6 text-center text-md-end small text-muted">
+                    Desarrollado con ❤️ por Matías - <span class="text-info">Versión 2.0.4</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
